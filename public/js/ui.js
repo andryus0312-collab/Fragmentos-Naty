@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnDarkMode = document.getElementById('btnDarkMode');
   if (btnDarkMode) btnDarkMode.addEventListener('click', () => {
     document.body.classList.toggle('dark-mode');
-    btnDarkMode.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '';
+    btnDarkMode.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
   });
 
   const logoutBtn = document.getElementById('logoutBtn');
