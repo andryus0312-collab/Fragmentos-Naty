@@ -89,5 +89,33 @@
     <script type="module" src="js/firebase-config.js"></script>
     <script type="module" src="js/supabase-config.js"></script>
     <script type="module" src="js/ui.js"></script> <!-- Lógica visual (sliders, modo oscuro) -->
+
+    <!-- VENTANA EMERGENTE PARA ESCRIBIR (MODAL) -->
+    <div id="writeModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Nuevo Fragmento</h2>
+                <button class="close-btn" id="closeModalBtn">&times;</button>
+            </div>
+            
+            <form id="writeForm">
+                <div class="input-group">
+                    <label for="fragmentTitle">Título (Opcional)</label>
+                    <input type="text" id="fragmentTitle" placeholder="Ej: Ecos del Malecón">
+                </div>
+                
+                <div class="input-group">
+                    <label for="fragmentText">Tu escrito</label>
+                    <textarea id="fragmentText" rows="8" placeholder="Deja fluir tus ideas..."></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" id="cancelBtn">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar Fragmento</button>
+                </div>
+            </form>
+        </div>
+                    </div>
+    
 </body>
                   </html>
