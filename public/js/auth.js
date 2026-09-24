@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (loginForm) {
         loginForm.addEventListener("submit", async (e) => {
-            e.preventDefault(); // Evita que la página se recargue
+            e.preventDefault();
             
             const email = document.getElementById("email").value.trim();
             const password = document.getElementById("password").value;
@@ -17,24 +17,31 @@ document.addEventListener("DOMContentLoaded", () => {
             errorMsg.style.color = "#5A6B7C";
 
             try {
-                // Intentar iniciar sesión con Firebase
                 await signInWithEmailAndPassword(auth, email, password);
-                
-                // Si es exitoso, redirigir al dashboard
                 window.location.href = "dashboard.html";
-                
             } catch (error) {
-                // Manejar errores específicos de Firebase
+                console.error("Error completo:", error);
+                console.error("Código de error:", error.code);
+                console.error("Mensaje:", error.message);
+                
                 let mensajeError = "Error al iniciar sesión.";
                 
                 if (error.code === "auth/user-not-found") {
-                    mensajeError = "No existe una cuenta con este correo.";
+                    mensajeError = "❌ No existe cuenta con este correo. Revisa Firebase -> Authentication -> Users.";
                 } else if (error.code === "auth/wrong-password") {
-                    mensajeError = "La contraseña es incorrecta.";
+                    mensajeError = "❌ Contraseña incorrecta.";
                 } else if (error.code === "auth/invalid-email") {
-                    mensajeError = "El formato del correo no es válido.";
+                    mensajeError = "❌ Correo no válido.";
+                } else if (error.code === "auth/invalid-api-key") {
+                    mensajeError = "❌ API Key de Firebase incorrecta. Revisa firebase-config.js";
+                } else if (error.code === "auth/api-key-not-found") {
+                    mensajeError = "❌ Falta la API Key. Revisa firebase-config.js";
                 } else if (error.code === "auth/too-many-requests") {
-                    mensajeError = "Demasiados intentos. Espera un momento.";
+                    mensajeError = "⏳ Demasiados intentos. Espera unos minutos.";
+                } else if (error.code === "auth/network-request-failed") {
+                    mensajeError = "📡 Error de red. Revisa tu conexión.";
+                } else {
+                    mensajeError = "❌ Error: " + error.code;
                 }
                 
                 errorMsg.textContent = mensajeError;
