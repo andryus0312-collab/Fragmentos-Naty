@@ -88,10 +88,28 @@
         <button class="fab-btn" id="btnDoc" data-tooltip="Documento">📄</button>
     </div>
 
+    <!-- Botón flotante hacia el Álbum especial -->
+    <a href="album.html" class="heart-fab" title="Nuestro Álbum">❤️</a>
+
+    <!-- Reproductor de música persistente -->
+    <div class="music-player" id="reproductorMusica">
+        <button class="music-btn" id="musicaPlayPause" title="Reproducir/Pausar">▶️</button>
+        <span class="music-name" id="musicaNombre">Cargando...</span>
+        <label class="music-btn music-upload" title="Subir canción">
+            📤
+            <input type="file" id="musicaSubirInput" accept="audio/*" style="display:none;">
+        </label>
+        <button class="music-btn" id="musicaBorrarBtn" title="Eliminar canción">🗑️</button>
+    </div>
+
     <!-- Scripts -->
     <script type="module" src="js/firebase-config.js?v=2"></script>
     <script type="module" src="js/supabase-config.js?v=2"></script>
     <script type="module" src="js/ui.js?v=2"></script> <!-- Lógica visual (sliders, modo oscuro) -->
+    <script type="module">
+      import { initReproductor } from "./js/reproductor.js?v=1";
+      document.addEventListener("DOMContentLoaded", initReproductor);
+    </script>
 
 
 <!-- VENTANA EMERGENTE DE BÚSQUEDA -->
