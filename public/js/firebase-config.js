@@ -4,12 +4,12 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-aut
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "TU_API_KEY_AQUI",
+  apiKey: "AIzaSyAGSV6Oc9iGAcsxTMLw9GyILQrbNDecLJ0",
   authDomain: "fragmentos-naty.firebaseapp.com",
   projectId: "fragmentos-naty",
-  storageBucket: "fragmentos-naty.appspot.com",
-  messagingSenderId: "TU_ID_AQUI",
-  appId: "TU_APP_ID_AQUI"
+  storageBucket: "fragmentos-naty.firebasestorage.app",
+  messagingSenderId: "967090680217",
+  appId: "1:967090680217:web:3eeb5bc0d57c1b3414e308"
 };
 
 const app = initializeApp(firebaseConfig);
