@@ -100,15 +100,102 @@ document.addEventListener("DOMContentLoaded", () => {
     const categoryNames = { 'poesia': 'Poesía', 'prosa': 'Prosa', 'ideas': 'Ideas', 'imagenes': 'Imágenes' };
     let fragmentosEnMemoria = []; // Aquí guardaremos los fragmentos para buscar
     
-    // --- 5.1 LÓGICA DE ARCHIVOS (FOTOS Y PDF) ---
+    // --- 5.1 LÓGICA DE ARCHIVOS Y BOTONES INFERIORES ---
     const btnCamera = document.getElementById('btnCamera');
     const btnDoc = document.getElementById('btnDoc');
+    const btnEmoji = document.querySelector('.fab-right .fab-btn'); // Botón de emojis
     const fileImageInput = document.getElementById('fileImage');
     const fileDocInput = document.getElementById('fileDoc');
     const filePreviewArea = document.getElementById('filePreview');
     const fileNameText = document.getElementById('fileName');
     const imagePreview = document.getElementById('imagePreview');
     const removeFileBtn = document.getElementById('removeFileBtn');
+    const categorySelect = document.getElementById('fragmentCategory'); // NUEVO
+    
+    let selectedFile = null;
+    let selectedFileType = null;
+
+    // Función para abrir el modal primero, y luego activar el selector
+    function openModalAndTrigger(triggerFn) {
+        toggleModal(true);
+        // Esperar a que el modal esté visible antes de activar el selector
+        setTimeout(() => {
+            if (triggerFn) triggerFn();
+        }, 300);
+    }
+
+    // Botón de cámara: abre modal y luego selector de imagen
+    if (btnCamera) {
+        btnCamera.addEventListener('click', () => {
+            openModalAndTrigger(() => fileImageInput.click());
+        });
+    }
+
+    // Botón de documento: abre modal y luego selector de PDF
+    if (btnDoc) {
+        btnDoc.addEventListener('click', () => {
+            openModalAndTrigger(() => fileDocInput.click());
+        });
+    }
+
+    // Botón de emojis: solo abre el modal (los emojis vendrán en el siguiente paso)
+    if (btnEmoji) {
+        btnEmoji.addEventListener('click', () => {
+            openModalAndTrigger(null);
+        });
+    }
+
+    // Cuando se selecciona un archivo
+    function handleFileSelect(event, type) {
+        const file = event.target.files[0];
+        if (file) {
+            selectedFile = file;
+            selectedFileType = type;
+            filePreviewArea.style.display = 'block';
+            fileNameText.textContent = `Archivo: ${file.name}`;
+            
+            if (type === 'imagen') {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.style.display = 'none';
+            }
+        }
+    }
+
+    if (fileImageInput) fileImageInput.addEventListener('change', (e) => handleFileSelect(e, 'imagen'));
+    if (fileDocInput) fileDocInput.addEventListener('change', (e) => handleFileSelect(e, 'documento'));
+
+    if (removeFileBtn) {
+        removeFileBtn.addEventListener('click', () => {
+            selectedFile = null;
+            selectedFileType = null;
+            filePreviewArea.style.display = 'none';
+            fileImageInput.value = '';
+            fileDocInput.value = '';
+        });
+    }
+
+    // NUEVO: Cuando cambia la categoría en el selector, actualizar la barra superior
+    if (categorySelect) {
+        categorySelect.addEventListener('change', (e) => {
+            const nuevaCategoria = e.target.value;
+            // Actualizar la barra de navegación superior
+            navItems.forEach(nav => {
+                nav.classList.remove('active');
+                if (nav.getAttribute('data-category') === nuevaCategoria) {
+                    nav.classList.add('active');
+                }
+            });
+            if (categoryTitle && categoryNames[nuevaCategoria]) {
+                categoryTitle.textContent = categoryNames[nuevaCategoria];
+            }
+        });
+                                       }
     
     let selectedFile = null; // Aquí guardaremos el archivo temporalmente
     let selectedFileType = null; // 'imagen' o 'documento'
@@ -213,15 +300,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Guardar nuevo fragmento (con soporte para archivos)
+    // Guardar nuevo fragmento (con soporte para archivos y selector de categoría)
     if (writeForm) {
         writeForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const titulo = document.getElementById('fragmentTitle').value.trim();
             const contenido = document.getElementById('fragmentText').value.trim();
             
-            const activeNav = document.querySelector('.nav-item.active');
-            const tipo = activeNav ? activeNav.getAttribute('data-category') : 'poesia';
+            // USAR LA CATEGORÍA DEL SELECTOR DEL MODAL
+            const tipo = categorySelect ? categorySelect.value : 'poesia';
 
             if (!contenido && !selectedFile) { 
                 alert("Por favor escribe algo o adjunta un archivo."); 
@@ -236,7 +323,6 @@ document.addEventListener("DOMContentLoaded", () => {
             let urlArchivo = null;
             let tipoArchivo = null;
 
-            // Si hay un archivo seleccionado, subirlo primero a Supabase
             if (selectedFile) {
                 btnSave.textContent = "Subiendo archivo...";
                 const folder = selectedFileType === 'imagen' ? 'fotos' : 'documentos';
@@ -250,6 +336,26 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
             }
+
+            btnSave.textContent = "Guardando escrito...";
+            const result = await guardarFragmento(tipo, titulo, contenido, urlArchivo, tipoArchivo);
+
+            if (result.success) {
+                toggleModal(false);
+                renderFragmentos(tipo);
+            } else {
+                alert("Error al guardar: " + result.error);
+            }
+
+            btnSave.textContent = originalText;
+            btnSave.disabled = false;
+            selectedFile = null;
+            selectedFileType = null;
+            filePreviewArea.style.display = 'none';
+            fileImageInput.value = '';
+            fileDocInput.value = '';
+        });
+    }
 
             // Guardar en Firestore (Base de datos)
             btnSave.textContent = "Guardando escrito...";
