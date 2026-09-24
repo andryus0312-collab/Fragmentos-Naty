@@ -1,4 +1,3 @@
-//  public/js/storage.js
 import { supabase } from "./supabase-config.js";
 
 const BUCKET_NAME = "fragmentos";
