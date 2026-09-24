@@ -264,3 +264,48 @@ body.dark-mode .main-title { color: #90CDF4; }
     transform: translateY(-2px);
     box-shadow: 0 6px 15px rgba(0,0,0,0.15);
 }
+
+
+/* 📍 public/css/dashboard.css (Agregar al final) */
+
+/* Estilos para los resultados de búsqueda */
+#searchInput:focus {
+    border-color: var(--accent-green);
+}
+
+.search-result-item {
+    padding: 15px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: background 0.2s;
+    border-radius: 8px;
+    margin-bottom: 5px;
+}
+
+.search-result-item:hover {
+    background-color: rgba(31, 122, 76, 0.05); /* Verde muy suave */
+}
+
+.search-result-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 5px;
+    font-size: 16px;
+}
+
+.search-result-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Muestra solo 2 líneas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.search-highlight {
+    background-color: #FFD700; /* Resaltado amarillo */
+    color: #000;
+    padding: 0 2px;
+    border-radius: 3px;
+}
