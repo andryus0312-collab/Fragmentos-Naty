@@ -28,7 +28,7 @@ export async function cargarFragmentos(tipo) {
   try {
     const q = query(
       collection(db, "fragmentos"),
-      where("tipo", "equal", tipo),
+      where("tipo", "==", tipo),
       orderBy("fecha", "desc")
     );
     const querySnapshot = await getDocs(q);
