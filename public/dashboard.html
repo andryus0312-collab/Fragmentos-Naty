@@ -118,19 +118,28 @@
             </div>
             
             <form id="writeForm">
-                <div class="input-group">
-                    <div class="input-group">
-                    <label for="fragmentCategory">Categoría</label>
-                    <select id="fragmentCategory" style="width: 100%; padding: 12px 15px; border: 2px solid #E2E8F0; border-radius: 10px; font-size: 15px; outline: none; background-color: var(--card-bg); color: var(--text-main);">
-                        <option value="poesia">✒️ Poesía</option>
-                        <option value="prosa"> Prosa</option>
-                        <option value="ideas">💡 Ideas</option>
-                        <option value="imagenes">📷 Imágenes</option>
-                    </select>
-                    </div>
-                    <label for="fragmentTitle">Título (Opcional)</label>
-                    <input type="text" id="fragmentTitle" placeholder="Ej: Ecos del Malecón">
-                </div>
+    <div class="input-group">
+        <label for="fragmentTitle">Título (Opcional)</label>
+        <input type="text" id="fragmentTitle" placeholder="Ej: Ecos del Malecón">
+    </div>
+    
+    <!-- ESTE BLOQUE DEBE ESTAR AHÍ -->
+    <div class="input-group">
+        <label for="fragmentCategory">Categoría</label>
+        <select id="fragmentCategory" style="width: 100%; padding: 12px 15px; border: 2px solid #E2E8F0; border-radius: 10px; font-size: 15px; outline: none; background-color: var(--card-bg); color: var(--text-main);">
+            <option value="poesia">✒️ Poesía</option>
+            <option value="prosa">📖 Prosa</option>
+            <option value="ideas">💡 Ideas</option>
+            <option value="imagenes">📷 Imágenes</option>
+        </select>
+    </div>
+    <!-- FIN DEL BLOQUE -->
+
+    <div class="input-group">
+        <label for="fragmentText">Tu escrito</label>
+        <textarea id="fragmentText" rows="8" placeholder="Deja fluir tus ideas..."></textarea>
+    </div>
+    <!-- ... resto del formulario ... -->
                 
                 <!-- Selectores de archivos ocultos -->
                 <input type="file" id="fileImage" accept="image/*" style="display: none;">
