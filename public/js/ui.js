@@ -98,7 +98,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const categoryTitle = document.getElementById('categoryTitle');
 
     const categoryNames = { 'poesia': 'Poesía', 'prosa': 'Prosa', 'ideas': 'Ideas', 'imagenes': 'Imágenes' };
-
+    let fragmentosEnMemoria = []; // Aquí guardaremos los fragmentos para buscar
+    
     // --- 5.1 LÓGICA DE ARCHIVOS (FOTOS Y PDF) ---
     const btnCamera = document.getElementById('btnCamera');
     const btnDoc = document.getElementById('btnDoc');
@@ -172,6 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
         fragmentsContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding: 20px;">Cargando tus fragmentos...</p>';
         
         const fragmentos = await cargarFragmentos(tipo);
+        fragmentosEnMemoria = fragmentos; // Guardar en memoria para la búsqueda
         fragmentsContainer.innerHTML = ''; 
 
         if (fragmentos.length === 0) {
@@ -285,4 +287,62 @@ document.addEventListener("DOMContentLoaded", () => {
     // Cargar los datos iniciales al abrir la página
     const initialCategory = document.querySelector('.nav-item.active')?.getAttribute('data-category') || 'poesia';
     renderFragmentos(initialCategory);
+    
+    // --- 6. LÓGICA DE BÚSQUEDA ---
+    const btnSearch = document.getElementById('btnSearch');
+    const searchModal = document.getElementById('searchModal');
+    const closeSearchBtn = document.getElementById('closeSearchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+
+    // Abrir y cerrar modal de búsqueda
+    if (btnSearch) btnSearch.addEventListener('click', () => {
+        searchModal.classList.add('active');
+        searchInput.value = '';
+        searchResults.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Empieza a escribir para buscar...</p>';
+        setTimeout(() => searchInput.focus(), 100); // Enfocar el input automáticamente
+    });
+    if (closeSearchBtn) closeSearchBtn.addEventListener('click', () => searchModal.classList.remove('active'));
+    if (searchModal) searchModal.addEventListener('click', (e) => { if (e.target === searchModal) searchModal.classList.remove('active'); });
+
+    // Función para buscar
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const texto = e.target.value.toLowerCase().trim();
+            
+            if (texto.length < 2) {
+                searchResults.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Escribe al menos 2 caracteres...</p>';
+                return;
+            }
+
+            // Filtrar los fragmentos en memoria
+            const resultados = fragmentosEnMemoria.filter(frag => {
+                const titulo = (frag.titulo || '').toLowerCase();
+                const contenido = (frag.contenido || '').toLowerCase();
+                return titulo.includes(texto) || contenido.includes(texto);
+            });
+
+            // Mostrar resultados
+            if (resultados.length === 0) {
+                searchResults.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No se encontraron fragmentos con ese texto.</p>';
+            } else {
+                searchResults.innerHTML = '';
+                resultados.forEach(frag => {
+                    const item = document.createElement('div');
+                    item.className = 'search-result-item';
+                    item.innerHTML = `
+                        <div class="search-result-title">${frag.titulo || 'Sin título'}</div>
+                        <div class="search-result-text">${frag.contenido || 'Sin contenido'}</div>
+                    `;
+                    // Al hacer clic en un resultado, cerrar búsqueda y hacer scroll (opcional)
+                    item.addEventListener('click', () => {
+                        searchModal.classList.remove('active');
+                        // Aquí podríamos agregar lógica para hacer scroll hasta la tarjeta
+                    });
+                    searchResults.appendChild(item);
+                });
+            }
+        });
+                }
+    
 });
