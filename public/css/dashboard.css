@@ -118,7 +118,21 @@ body.dark-mode .main-title { color: #90CDF4; }
     .lamp-svg { width: 70px; height: 100px; }
     .custom-slider { height: 90px; }
     .main-title { font-size: calc(34px * (var(--base-font-size) / 16px)); }
-    .category-title { font-size: calc(40px * (var(--base-font-size) / 16px)); }
+    .category-title {
+    font-family: 'Playfair Display', serif;
+    font-size: calc(56px * (var(--base-font-size) / 16px));
+    font-weight: 700;
+    color: #0A1628 !important;  /* FORZADO OSCURO */
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 3px rgba(255,255,255,0.8);
+}
+.category-subtitle {
+    font-size: calc(14px * (var(--base-font-size) / 16px));
+    color: #1A2A3A !important;  /* FORZADO OSCURO */
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
     .nav-menu { gap: 8px; overflow-x: auto; padding-bottom: 5px; }
     .nav-item { padding: 8px 12px; font-size: calc(13px * (var(--base-font-size) / 16px)); }
     .logout-btn { position: static; margin-left: auto; padding-left: 10px; }
