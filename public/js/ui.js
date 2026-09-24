@@ -1,10 +1,10 @@
-// 📍 public/js/ui.js (VERSIÓN MÍNIMA DE PRUEBA)
-import { auth } from "./firebase-config.js";
-import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+// 📍 public/js/ui.js (VERSIÓN SIN IMPORTS - TODO EN UNO)
 
+// Esperar a que Firebase esté listo
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("🚀 Iniciando Fragmentos...");
+    
     const root = document.documentElement;
-    console.log("✅ UI.js cargado correctamente");
 
     // --- 1. CONTROL DE LUZ ---
     const lightSlider = document.getElementById('lightSlider');
@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const lightToggle = document.getElementById('lightToggle');
 
     if (lightSlider) {
+        console.log("✅ Slider de luz encontrado");
         lightSlider.addEventListener('input', () => {
             const intensity = lightSlider.value / 100;
             root.style.setProperty('--light-intensity', intensity);
@@ -19,41 +20,53 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (intensity === 0) lightOverlay.classList.add('off');
                 else lightOverlay.classList.remove('off');
             }
-            if (lightToggle) lightToggle.textContent = intensity === 0 ? '🌙' : '';
+            if (lightToggle) lightToggle.textContent = intensity === 0 ? '🌙' : '💡';
+            console.log("💡 Intensidad:", intensity);
         });
+    } else {
+        console.error("❌ No se encontró el slider de luz");
     }
 
     // --- 2. CONTROL DE TAMAÑO DE TEXTO ---
     const textSizeSlider = document.getElementById('textSizeSlider');
+    const textSizeToggle = document.getElementById('textSizeToggle');
+    
     if (textSizeSlider) {
+        console.log("✅ Slider de texto encontrado");
         textSizeSlider.addEventListener('input', () => {
             root.style.setProperty('--base-font-size', textSizeSlider.value + 'px');
+            if (textSizeToggle) textSizeToggle.style.fontSize = (textSizeSlider.value * 1.1) + 'px';
+        });
+    }
+
+    if (textSizeToggle) {
+        textSizeToggle.addEventListener('click', () => {
+            textSizeSlider.value = parseInt(textSizeSlider.value) <= 16 ? 20 : 14;
+            textSizeSlider.dispatchEvent(new Event('input'));
         });
     }
 
     // --- 3. MODO OSCURO ---
     const btnDarkMode = document.getElementById('btnDarkMode');
     if (btnDarkMode) {
+        console.log("✅ Botón modo oscuro encontrado");
         btnDarkMode.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
-            btnDarkMode.textContent = document.body.classList.contains('dark-mode') ? '️' : '🌙';
+            btnDarkMode.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
         });
     }
 
     // --- 4. CERRAR SESIÓN ---
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                window.location.href = "index.html";
-            } catch (error) {
-                console.error("Error:", error);
-            }
+        console.log("✅ Botón cerrar sesión encontrado");
+        logoutBtn.addEventListener('click', () => {
+            console.log("🔒 Cerrando sesión...");
+            alert("Cerrar sesión (pendiente de implementar con Firebase)");
         });
     }
 
-    // --- 5. MODAL SIMPLE ---
+    // --- 5. MODAL ---
     const newFragmentBtn = document.getElementById('newFragmentBtn');
     const writeModal = document.getElementById('writeModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
@@ -61,176 +74,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function toggleModal(show) {
         if (writeModal) {
-            if (show) writeModal.classList.add('active');
-            else writeModal.classList.remove('active');
+            if (show) {
+                writeModal.classList.add('active');
+                console.log("📝 Modal abierto");
+            } else {
+                writeModal.classList.remove('active');
+                console.log("📝 Modal cerrado");
+            }
         }
     }
 
-    if (newFragmentBtn) newFragmentBtn.addEventListener('click', () => toggleModal(true));
+    if (newFragmentBtn) {
+        console.log("✅ Botón nuevo fragmento encontrado");
+        newFragmentBtn.addEventListener('click', () => toggleModal(true));
+    }
     if (closeModalBtn) closeModalBtn.addEventListener('click', () => toggleModal(false));
     if (cancelBtn) cancelBtn.addEventListener('click', () => toggleModal(false));
 
-    console.log("✅ Todos los botones básicos están activos");
-});: 20px;">Aún no hay fragmentos en esta categoría. ¡Sé el primero en escribir!</p>';
-            return;
-        }
-
-        fragmentos.forEach(frag => {
-            let fechaStr = "Fecha reciente";
-            if (frag.fecha && frag.fecha.seconds) {
-                const date = new Date(frag.fecha.seconds * 1000);
-                fechaStr = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-            }
-
-            let archivoHTML = '';
-            if (frag.url_archivo) {
-                if (frag.tipo_archivo === 'imagen') {
-                    archivoHTML = `<img src="${frag.url_archivo}" alt="Imagen adjunta" class="card-image">`;
-                } else if (frag.tipo_archivo === 'documento') {
-                    archivoHTML = `<a href="${frag.url_archivo}" target="_blank" class="card-doc-link">📄 Ver / Descargar Documento</a>`;
-                }
-            }
-
-            const card = document.createElement('div');
-            card.className = 'fragment-card';
-            card.innerHTML = `
-                <div class="card-meta">${fechaStr}</div>
-                <h3 class="card-title">${frag.titulo || 'Sin título'}</h3>
-                ${archivoHTML}
-                <p class="card-text">${frag.contenido ? frag.contenido.replace(/\n/g, '<br>') : ''}</p>
-            `;
-            fragmentsContainer.appendChild(card);
-        });
-    }
-
-    if (writeForm) {
-        writeForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const titulo = document.getElementById('fragmentTitle').value.trim();
-            const contenido = document.getElementById('fragmentText').value.trim();
-            
-            const tipo = categorySelect ? categorySelect.value : 'poesia';
-
-            if (!contenido && !selectedFile) { 
-                alert("Por favor escribe algo o adjunta un archivo."); 
-                return; 
-            }
-
-            const btnSave = writeForm.querySelector('.btn-save');
-            const originalText = btnSave.textContent;
-            btnSave.textContent = "Procesando...";
-            btnSave.disabled = true;
-
-            let urlArchivo = null;
-            let tipoArchivo = null;
-
-            if (selectedFile) {
-                btnSave.textContent = "Subiendo archivo...";
-                const folder = selectedFileType === 'imagen' ? 'fotos' : 'documentos';
-                urlArchivo = await subirArchivo(selectedFile, folder);
-                tipoArchivo = selectedFileType;
-                
-                if (!urlArchivo) {
-                    alert("Error al subir el archivo. Intenta de nuevo.");
-                    btnSave.textContent = originalText;
-                    btnSave.disabled = false;
-                    return;
-                }
-            }
-
-            btnSave.textContent = "Guardando escrito...";
-            const result = await guardarFragmento(tipo, titulo, contenido, urlArchivo, tipoArchivo);
-
-            if (result.success) {
-                toggleModal(false);
-                renderFragmentos(tipo);
-            } else {
-                alert("Error al guardar: " + result.error);
-            }
-
-            btnSave.textContent = originalText;
-            btnSave.disabled = false;
-            selectedFile = null;
-            selectedFileType = null;
-            if(filePreviewArea) filePreviewArea.style.display = 'none';
-            if(fileImageInput) fileImageInput.value = '';
-            if(fileDocInput) fileDocInput.value = '';
-        });
-    }
-
-    navItems.forEach(item => {
-        item.addEventListener('click', () => {
-            navItems.forEach(nav => nav.classList.remove('active'));
-            item.classList.add('active');
-            const category = item.getAttribute('data-category');
-            if (categoryTitle && categoryNames[category]) categoryTitle.textContent = categoryNames[category];
-            renderFragmentos(category);
-        });
-    });
-
-    const initialCategory = document.querySelector('.nav-item.active')?.getAttribute('data-category') || 'poesia';
-    renderFragmentos(initialCategory);
-
-    // --- 6. BÚSQUEDA ---
-    const btnSearch = document.getElementById('btnSearch');
-    const searchModal = document.getElementById('searchModal');
-    const closeSearchBtn = document.getElementById('closeSearchBtn');
-    const searchInput = document.getElementById('searchInput');
-    const searchResults = document.getElementById('searchResults');
-
-    if (btnSearch) btnSearch.addEventListener('click', () => {
-        if(searchModal) {
-            searchModal.classList.add('active');
-            if(searchInput) { searchInput.value = ''; searchInput.focus(); }
-            if(searchResults) searchResults.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Empieza a escribir para buscar...</p>';
-        }
-    });
-    if (closeSearchBtn) closeSearchBtn.addEventListener('click', () => searchModal.classList.remove('active'));
-    if (searchModal) searchModal.addEventListener('click', (e) => { if (e.target === searchModal) searchModal.classList.remove('active'); });
-
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            const texto = e.target.value.toLowerCase().trim();
-            if (!searchResults) return;
-            
-            if (texto.length < 2) {
-                searchResults.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Escribe al menos 2 caracteres...</p>';
-                return;
-            }
-
-            const resultados = fragmentosEnMemoria.filter(frag => {
-                const titulo = (frag.titulo || '').toLowerCase();
-                const contenido = (frag.contenido || '').toLowerCase();
-                return titulo.includes(texto) || contenido.includes(texto);
-            });
-
-            if (resultados.length === 0) {
-                searchResults.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No se encontraron fragmentos.</p>';
-            } else {
-                searchResults.innerHTML = '';
-                resultados.forEach(frag => {
-                    const item = document.createElement('div');
-                    item.className = 'search-result-item';
-                    item.innerHTML = `<div class="search-result-title">${frag.titulo || 'Sin título'}</div><div class="search-result-text">${frag.contenido || 'Sin contenido'}</div>`;
-                    item.addEventListener('click', () => searchModal.classList.remove('active'));
-                    searchResults.appendChild(item);
-                });
-            }
-        });
-    }
-
-    // --- 7. EXPORTAR PDF ---
-    const btnExport = document.getElementById('btnExport');
-    if (btnExport) {
-        btnExport.addEventListener('click', async () => {
-            if (!fragmentsContainer || fragmentsContainer.children.length === 0) {
-                alert("No hay fragmentos para exportar."); return;
-            }
-            const originalTooltip = btnExport.getAttribute('data-tooltip');
-            btnExport.textContent = '⏳';
-            btnExport.disabled = true;
-
-            const opt = {
+    console.log("✅✅✅ Todos los botones básicos están activos ✅✅✅");
+});pt = {
                 margin: 15, filename: `Fragmentos.pdf`, image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true, logging: false },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
