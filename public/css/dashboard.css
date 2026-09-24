@@ -5,8 +5,8 @@
     --sidebar-hover: #1E6B9E;
     --accent-green: #1F7A4C;
     --accent-green-dark: #145233;
-    --text-main: #0F1C2E;
-    --text-muted: #2C3E50;
+    --text-main: #0A1628;       /* MÁS OSCURO - antes #0F1C2E */
+    --text-muted: #1A2A3A;      /* MÁS OSCURO - antes #2C3E50 */
     --card-bg: #FFFFFF;
     --light-intensity: 0.7;
     --base-font-size: 16px;
