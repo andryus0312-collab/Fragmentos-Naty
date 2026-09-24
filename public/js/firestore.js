@@ -1,13 +1,8 @@
 import { db } from "./firebase-config.js";
-import {
-  collection,
-  addDoc,
-  serverTimestamp,
-  query,
-  where,
-  getDocs,
-  orderBy
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { collection, addDoc, serverTimestamp, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const EQUALS = "==";
+const DESC = "desc";
 
 export async function guardarFragmento(tipo, titulo, contenido, urlArchivo, tipoArchivo) {
   try {
@@ -34,8 +29,8 @@ export async function cargarFragmentos(tipo) {
   try {
     const q = query(
       collection(db, "fragmentos"),
-      where("tipo", "==", tipo),
-      orderBy("fecha", "desc")
+      where("tipo", EQUALS, tipo),
+      orderBy("fecha", DESC)
     );
     const querySnapshot = await getDocs(q);
     const fragmentos = [];
