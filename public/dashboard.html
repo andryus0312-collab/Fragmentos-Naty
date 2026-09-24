@@ -104,6 +104,17 @@
                     <input type="text" id="fragmentTitle" placeholder="Ej: Ecos del Malecón">
                 </div>
                 
+                <!-- Selectores de archivos ocultos -->
+                <input type="file" id="fileImage" accept="image/*" style="display: none;">
+                <input type="file" id="fileDoc" accept=".pdf,.doc,.docx" style="display: none;">
+
+                <!-- Área de vista previa del archivo -->
+                <div id="filePreview" style="display: none; margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 10px; text-align: center;">
+                    <p id="fileName" style="font-size: 13px; color: var(--text-muted); margin-bottom: 5px;"></p>
+                    <img id="imagePreview" src="" alt="Vista previa" style="max-width: 100%; max-height: 200px; border-radius: 8px; display: none;">
+                    <button type="button" id="removeFileBtn" style="margin-top: 5px; background: #e53e3e; color: white; border: none; padding: 4px 10px; border-radius: 15px; font-size: 12px; cursor: pointer;">Quitar archivo</button>
+                </div>
+                
                 <div class="input-group">
                     <label for="fragmentText">Tu escrito</label>
                     <textarea id="fragmentText" rows="8" placeholder="Deja fluir tus ideas..."></textarea>
