@@ -186,13 +186,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 fechaStr = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
             }
 
+            // Lógica para mostrar archivos adjuntos
+            let archivoHTML = '';
+            if (frag.url_archivo) {
+                if (frag.tipo_archivo === 'imagen') {
+                    archivoHTML = `<img src="${frag.url_archivo}" alt="Imagen adjunta" class="card-image">`;
+                } else if (frag.tipo_archivo === 'documento') {
+                    archivoHTML = `
+                        <a href="${frag.url_archivo}" target="_blank" class="card-doc-link">
+                            📄 Ver / Descargar Documento
+                        </a>`;
+                }
+            }
+
             const card = document.createElement('div');
             card.className = 'fragment-card';
-            // Usamos replace para respetar los saltos de línea
             card.innerHTML = `
                 <div class="card-meta">${fechaStr}</div>
                 <h3 class="card-title">${frag.titulo || 'Sin título'}</h3>
-                <p class="card-text">${frag.contenido.replace(/\n/g, '<br>')}</p>
+                ${archivoHTML}
+                <p class="card-text">${frag.contenido ? frag.contenido.replace(/\n/g, '<br>') : ''}</p>
             `;
             fragmentsContainer.appendChild(card);
         });
