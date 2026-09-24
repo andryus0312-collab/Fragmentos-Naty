@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     root.style.setProperty('--light-intensity', intensity);
     if (intensity === 0) {
       if (lightOverlay) lightOverlay.classList.add('off');
-      if (lightToggle) lightToggle.textContent = '🌙';
+      if (lightToggle) lightToggle.textContent = '';
       if (bulbGlass) { bulbGlass.setAttribute('opacity', '0.3'); bulbGlass.setAttribute('fill', '#D0D0D0'); }
       if (bulbGlow) bulbGlow.setAttribute('opacity', '0');
       if (bulbInterior) bulbInterior.setAttribute('opacity', '0');
@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnDarkMode = document.getElementById('btnDarkMode');
   if (btnDarkMode) btnDarkMode.addEventListener('click', () => {
     document.body.classList.toggle('dark-mode');
-    btnDarkMode.textContent = document.body.classList.contains('dark-mode') ? '️' : '🌙';
+    btnDarkMode.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '';
   });
 
   const logoutBtn = document.getElementById('logoutBtn');
@@ -176,7 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let archivoHTML = '';
       if (frag.url_archivo) {
         if (frag.tipo_archivo === 'imagen') archivoHTML = '<img src="' + frag.url_archivo + '" class="card-image">';
-        else if (frag.tipo_archivo === 'documento') archivoHTML = '<a href="' + frag.url_archivo + '" target="_blank" class="card-doc-link">📄 Ver Documento</a>';
+        else if (frag.tipo_archivo === 'documento') archivoHTML = '<a href="' + frag.url_archivo + '" target="_blank" class="card-doc-link"> Ver Documento</a>';
       }
       const card = document.createElement('div');
       card.className = 'fragment-card';
@@ -200,6 +200,71 @@ document.addEventListener("DOMContentLoaded", () => {
       urlArchivo = await subirArchivo(selectedFile, selectedFileType === 'imagen' ? 'fotos' : 'documentos');
       tipoArchivo = selectedFileType;
       if (!urlArchivo) { alert("Error al subir."); btnSave.textContent = originalText; btnSave.disabled = false; return; }
+    }
+    btnSave.textContent = "Guardando...";
+    const result = await guardarFragmento(tipo, titulo, contenido, urlArchivo, tipoArchivo);
+    if (result.success) { toggleModal(false); renderFragmentos(tipo); }
+    else alert("Error: " + result.error);
+    btnSave.textContent = originalText; btnSave.disabled = false;
+    selectedFile = null; selectedFileType = null;
+    if (filePreviewArea) filePreviewArea.style.display = 'none';
+    if (fileImageInput) fileImageInput.value = '';
+    if (fileDocInput) fileDocInput.value = '';
+  });
+
+  navItems.forEach(item => item.addEventListener('click', () => {
+    navItems.forEach(nav => nav.classList.remove('active'));
+    item.classList.add('active');
+    const cat = item.getAttribute('data-category');
+    if (categoryTitle && categoryNames[cat]) categoryTitle.textContent = categoryNames[cat];
+    renderFragmentos(cat);
+  }));
+
+  const initialCat = document.querySelector('.nav-item.active') ? document.querySelector('.nav-item.active').getAttribute('data-category') : 'poesia';
+  renderFragmentos(initialCat);
+
+  const btnSearch = document.getElementById('btnSearch');
+  const searchModal = document.getElementById('searchModal');
+  const closeSearchBtn = document.getElementById('closeSearchBtn');
+  const searchInput = document.getElementById('searchInput');
+  const searchResults = document.getElementById('searchResults');
+
+  if (btnSearch) btnSearch.addEventListener('click', () => {
+    if (searchModal) { searchModal.classList.add('active'); if (searchInput) { searchInput.value = ''; searchInput.focus(); } }
+  });
+  if (closeSearchBtn) closeSearchBtn.addEventListener('click', () => searchModal && searchModal.classList.remove('active'));
+  if (searchModal) searchModal.addEventListener('click', (e) => { if (e.target === searchModal) searchModal.classList.remove('active'); });
+  if (searchInput) searchInput.addEventListener('input', (e) => {
+    const texto = e.target.value.toLowerCase().trim();
+    if (!searchResults) return;
+    if (texto.length < 2) { searchResults.innerHTML = '<p style="text-align:center; color:var(--text-muted);">Escribe al menos 2 caracteres...</p>'; return; }
+    const resultados = fragmentosEnMemoria.filter(f => (f.titulo || '').toLowerCase().includes(texto) || (f.contenido || '').toLowerCase().includes(texto));
+    if (resultados.length === 0) searchResults.innerHTML = '<p style="text-align:center; color:var(--text-muted);">No se encontraron.</p>';
+    else {
+      searchResults.innerHTML = '';
+      resultados.forEach(frag => {
+        const item = document.createElement('div');
+        item.className = 'search-result-item';
+        item.innerHTML = '<div class="search-result-title">' + (frag.titulo || 'Sin título') + '</div><div class="search-result-text">' + (frag.contenido || '') + '</div>';
+        item.addEventListener('click', () => searchModal.classList.remove('active'));
+        searchResults.appendChild(item);
+      });
+    }
+  });
+
+  const btnExport = document.getElementById('btnExport');
+  if (btnExport) btnExport.addEventListener('click', async () => {
+    if (!fragmentsContainer || fragmentsContainer.children.length === 0) { alert("No hay fragmentos."); return; }
+    if (typeof html2pdf === 'undefined') { alert("Librería PDF no cargó."); return; }
+    btnExport.textContent = '⏳'; btnExport.disabled = true;
+    try {
+      await html2pdf().set({ margin: 15, filename: 'Fragmentos.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4' } }).from(fragmentsContainer).save();
+    } catch (err) { console.error(err); }
+    finally { btnExport.textContent = '📥'; btnExport.disabled = false; }
+  });
+
+  console.log("Todo listo");
+});xtContent = originalText; btnSave.disabled = false; return; }
     }
     btnSave.textContent = "Guardando...";
     const result = await guardarFragmento(tipo, titulo, contenido, urlArchivo, tipoArchivo);
