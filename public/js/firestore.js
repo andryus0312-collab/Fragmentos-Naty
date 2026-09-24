@@ -13,13 +13,15 @@ import {
 /**
  * Función para guardar un nuevo fragmento en la base de datos
  */
-export async function guardarFragmento(tipo, titulo, contenido) {
+export async function guardarFragmento(tipo, titulo, contenido, urlArchivo = null, tipoArchivo = null) {
     try {
         const docRef = await addDoc(collection(db, "fragmentos"), {
-            tipo: tipo,          // 'poesia', 'prosa', 'ideas', 'imagenes'
-            titulo: titulo,      // Título del escrito
-            contenido: contenido,// Texto del escrito
-            fecha: serverTimestamp() // Fecha y hora automática del servidor
+            tipo: tipo,          
+            titulo: titulo,      
+            contenido: contenido,
+            url_archivo: urlArchivo, // NUEVO: Enlace de la foto o PDF
+            tipo_archivo: tipoArchivo, // NUEVO: 'imagen' o 'documento'
+            fecha: serverTimestamp() 
         });
         console.log("Fragmento guardado con ID: ", docRef.id);
         return { success: true, id: docRef.id };
