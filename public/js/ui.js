@@ -2,6 +2,7 @@
 import { auth } from "./firebase-config.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { guardarFragmento, cargarFragmentos } from "./firestore.js";
+import { subirArchivo } from "./storage.js"; // AGREGAR ESTA LÍNEA
 
 document.addEventListener("DOMContentLoaded", () => {
     const root = document.documentElement;
@@ -98,6 +99,61 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const categoryNames = { 'poesia': 'Poesía', 'prosa': 'Prosa', 'ideas': 'Ideas', 'imagenes': 'Imágenes' };
 
+    // --- 5.1 LÓGICA DE ARCHIVOS (FOTOS Y PDF) ---
+    const btnCamera = document.getElementById('btnCamera');
+    const btnDoc = document.getElementById('btnDoc');
+    const fileImageInput = document.getElementById('fileImage');
+    const fileDocInput = document.getElementById('fileDoc');
+    const filePreviewArea = document.getElementById('filePreview');
+    const fileNameText = document.getElementById('fileName');
+    const imagePreview = document.getElementById('imagePreview');
+    const removeFileBtn = document.getElementById('removeFileBtn');
+    
+    let selectedFile = null; // Aquí guardaremos el archivo temporalmente
+    let selectedFileType = null; // 'imagen' o 'documento'
+
+    // Abrir selector de archivos al hacer clic en los botones
+    if (btnCamera) btnCamera.addEventListener('click', () => fileImageInput.click());
+    if (btnDoc) btnDoc.addEventListener('click', () => fileDocInput.click());
+
+    // Cuando se selecciona un archivo
+    function handleFileSelect(event, type) {
+        const file = event.target.files[0];
+        if (file) {
+            selectedFile = file;
+            selectedFileType = type;
+            
+            // Mostrar vista previa
+            filePreviewArea.style.display = 'block';
+            fileNameText.textContent = `Archivo seleccionado: ${file.name}`;
+            
+            if (type === 'imagen') {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.style.display = 'none';
+            }
+        }
+    }
+
+    if (fileImageInput) fileImageInput.addEventListener('change', (e) => handleFileSelect(e, 'imagen'));
+    if (fileDocInput) fileDocInput.addEventListener('change', (e) => handleFileSelect(e, 'documento'));
+
+    // Botón para quitar el archivo
+    if (removeFileBtn) {
+        removeFileBtn.addEventListener('click', () => {
+            selectedFile = null;
+            selectedFileType = null;
+            filePreviewArea.style.display = 'none';
+            fileImageInput.value = '';
+            fileDocInput.value = '';
+        });
+    }
+    
     // Abrir y cerrar modal
     function toggleModal(show) {
         if (show) writeModal.classList.add('active');
@@ -142,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Guardar nuevo fragmento
+    // Guardar nuevo fragmento (con soporte para archivos)
     if (writeForm) {
         writeForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -152,26 +208,55 @@ document.addEventListener("DOMContentLoaded", () => {
             const activeNav = document.querySelector('.nav-item.active');
             const tipo = activeNav ? activeNav.getAttribute('data-category') : 'poesia';
 
-            if (!contenido) { alert("Por favor escribe algo antes de guardar."); return; }
+            if (!contenido && !selectedFile) { 
+                alert("Por favor escribe algo o adjunta un archivo."); 
+                return; 
+            }
 
             const btnSave = writeForm.querySelector('.btn-save');
             const originalText = btnSave.textContent;
-            btnSave.textContent = "Guardando...";
+            btnSave.textContent = "Procesando...";
             btnSave.disabled = true;
 
-            const result = await guardarFragmento(tipo, titulo, contenido);
+            let urlArchivo = null;
+            let tipoArchivo = null;
 
-            if (result.success) {
-                toggleModal(false);
-                renderFragmentos(tipo); // Recargar la lista inmediatamente
-            } else {
-                alert("Error al guardar: " + result.error);
+            // Si hay un archivo seleccionado, subirlo primero a Supabase
+            if (selectedFile) {
+                btnSave.textContent = "Subiendo archivo...";
+                const folder = selectedFileType === 'imagen' ? 'fotos' : 'documentos';
+                urlArchivo = await subirArchivo(selectedFile, folder);
+                tipoArchivo = selectedFileType;
+                
+                if (!urlArchivo) {
+                    alert("Error al subir el archivo. Intenta de nuevo.");
+                    btnSave.textContent = originalText;
+                    btnSave.disabled = false;
+                    return;
+                }
             }
 
+            // Guardar en Firestore (Base de datos)
+            btnSave.textContent = "Guardando escrito...";
+            const result = await guardarFragmento(tipo, titulo, contenido, urlArchivo, tipoArchivo);
+
+            if (result.success) {
+                toggleModal(false); // Cerrar modal
+                renderFragmentos(tipo); // Recargar lista
+            } else {
+                alert("Error al guardar en la base de datos: " + result.error);
+            }
+
+            // Limpiar formulario y estado
             btnSave.textContent = originalText;
             btnSave.disabled = false;
+            selectedFile = null;
+            selectedFileType = null;
+            filePreviewArea.style.display = 'none';
+            fileImageInput.value = '';
+            fileDocInput.value = '';
         });
-    }
+                                   }
 
     // Cambiar de categoría (Poesía, Prosa, etc.)
     navItems.forEach(item => {
