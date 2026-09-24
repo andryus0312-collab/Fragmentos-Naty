@@ -344,5 +344,50 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
                 }
+
+// --- 7. LÓGICA DE EXPORTACIÓN A PDF ---
+    const btnExport = document.getElementById('btnExport');
+    
+    if (btnExport) {
+        btnExport.addEventListener('click', async () => {
+            const container = document.getElementById('fragmentsContainer');
+            const categoryTitle = document.getElementById('categoryTitle').innerText;
+            
+            // Validar que haya algo que exportar
+            if (container.children.length === 0 || container.innerText.includes('Aún no hay fragmentos')) {
+                alert("No hay fragmentos en esta categoría para exportar.");
+                return;
+            }
+
+            // Cambiar estado del botón
+            const originalTooltip = btnExport.getAttribute('data-tooltip');
+            btnExport.textContent = '⏳';
+            btnExport.setAttribute('data-tooltip', 'Generando...');
+            btnExport.disabled = true;
+
+            // Configuración del PDF
+            const opt = {
+                margin:       15,
+                filename:     `Fragmentos_${categoryTitle}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false }, // useCORS es vital para las imágenes de Supabase
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            try {
+                // Generar y descargar
+                await html2pdf().set(opt).from(container).save();
+            } catch (error) {
+                console.error("Error al generar PDF:", error);
+                alert("Hubo un error al generar el PDF. Revisa la consola.");
+            } finally {
+                // Restaurar botón
+                btnExport.textContent = '📥';
+                btnExport.setAttribute('data-tooltip', originalTooltip);
+                btnExport.disabled = false;
+            }
+        });
+    }
+
     
 });
