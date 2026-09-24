@@ -90,6 +90,25 @@
     <script type="module" src="js/supabase-config.js"></script>
     <script type="module" src="js/ui.js"></script> <!-- Lógica visual (sliders, modo oscuro) -->
 
+
+<!-- VENTANA EMERGENTE DE BÚSQUEDA -->
+    <div id="searchModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Buscar en Fragmentos</h2>
+                <button class="close-btn" id="closeSearchBtn">&times;</button>
+            </div>
+            <div style="padding: 30px;">
+                <div class="input-group">
+                    <input type="text" id="searchInput" placeholder="Escribe una palabra clave (ej: mar, silencio, amor)..." style="width: 100%; padding: 15px; font-size: 16px; border: 2px solid #E2E8F0; border-radius: 10px; outline: none;">
+                </div>
+                <div id="searchResults" style="margin-top: 20px; max-height: 300px; overflow-y: auto;">
+                    <p style="text-align: center; color: var(--text-muted);">Empieza a escribir para buscar...</p>
+                </div>
+            </div>
+        </div>
+                    </div>
+    
     <!-- VENTANA EMERGENTE PARA ESCRIBIR (MODAL) -->
     <div id="writeModal" class="modal-overlay">
         <div class="modal-content">
