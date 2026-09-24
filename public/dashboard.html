@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow"> <!-- Para que Google no la indexe -->
+    <title>Fragmentos</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="background-pattern"></div>
+    <div class="light-overlay" id="lightOverlay"></div>
+
+    <!-- SECCIÓN SUPERIOR: SLIDERS Y LÁMPARA -->
+    <div class="top-section">
+        <div class="control-box">
+            <div class="control-icon" id="textSizeToggle" title="Tamaño de texto">Aa</div>
+            <input type="range" class="custom-slider text-slider" id="textSizeSlider" min="12" max="24" value="16" title="Tamaño de texto">
+        </div>
+
+        <div class="lamp-container">
+            <svg class="lamp-svg" viewBox="0 0 120 180" xmlns="http://www.w3.org/2000/svg">
+                <line x1="60" y1="0" x2="60" y2="50" stroke="#1A252F" stroke-width="3"/>
+                <rect x="55" y="45" width="10" height="12" fill="#4A7065" rx="2"/>
+                <rect x="50" y="55" width="20" height="6" fill="#3A5A4F" rx="2"/>
+                <path d="M 30 65 Q 30 60 35 60 L 85 60 Q 90 60 90 65 L 95 90 Q 95 95 90 95 L 30 95 Q 25 95 25 90 Z" fill="#5D8A7F" stroke="#4A7065" stroke-width="2"/>
+                <ellipse cx="60" cy="95" rx="32" ry="8" fill="#FFD700" opacity="0.4" id="bulbInterior"/>
+                <ellipse cx="60" cy="108" rx="12" ry="18" fill="#FFF4D6" opacity="0.95" id="bulbGlass"/>
+                <ellipse cx="60" cy="108" rx="8" ry="12" fill="#FFD700" opacity="0.7" id="bulbGlow"/>
+                <path d="M 56 100 Q 58 104 60 100 Q 62 104 64 100" stroke="#FF8C00" stroke-width="2" fill="none" id="filament1"/>
+                <path d="M 56 108 Q 58 112 60 108 Q 62 112 64 108" stroke="#FF8C00" stroke-width="2" fill="none" id="filament2"/>
+                <path d="M 56 116 Q 58 120 60 116 Q 62 120 64 116" stroke="#FF8C00" stroke-width="2" fill="none" id="filament3"/>
+            </svg>
+        </div>
+
+        <div class="control-box">
+            <div class="control-icon" id="lightToggle" title="Encender/Apagar">💡</div>
+            <input type="range" class="custom-slider light-slider" id="lightSlider" min="0" max="100" value="70" title="Intensidad de luz">
+        </div>
+    </div>
+
+    <div class="main-title-container">
+        <h1 class="main-title">Fragmentos</h1>
+    </div>
+
+    <header class="topbar">
+        <ul class="nav-menu">
+            <li class="nav-item active" data-category="poesia"><span class="nav-icon">✒️</span> Poesía</li>
+            <li class="nav-item" data-category="prosa"><span class="nav-icon">📖</span> Prosa</li>
+            <li class="nav-item" data-category="ideas"><span class="nav-icon">💡</span> Ideas</li>
+            <li class="nav-item" data-category="imagenes"><span class="nav-icon">📷</span> Imágenes</li>
+        </ul>
+        <div class="logout-btn" id="logoutBtn">🔒 Cerrar sesión</div>
+    </header>
+
+    <main class="main-content">
+        <div class="category-header">
+            <h2 class="category-title" id="categoryTitle">Poesía</h2>
+            <div class="category-subtitle">Tus versos y pensamientos</div>
+            <button class="new-btn" id="newFragmentBtn">+ Nuevo Fragmento</button>
+        </div>
+
+        <div id="fragmentsContainer">
+            <!-- Aquí se cargarán las tarjetas dinámicamente desde Firebase -->
+            <div class="fragment-card">
+                <div class="card-meta">24 Septiembre, 2026</div>
+                <h3 class="card-title">Ecos del Malecón</h3>
+                <p class="card-text">El mar no sabe de prisa,<br>solo de mareas que van y vienen,<br>como los pensamientos que no se atreven<br>a decir su nombre en voz alta.</p>
+            </div>
+        </div>
+    </main>
+
+    <div class="fab-left">
+        <button class="fab-btn" id="btnSearch" data-tooltip="Buscar">🔍</button>
+        <button class="fab-btn" id="btnExport" data-tooltip="Exportar PDF">📥</button>
+        <button class="fab-btn" id="btnDarkMode" data-tooltip="Modo Oscuro">🌙</button>
+    </div>
+
+    <div class="fab-right">
+        <button class="fab-btn" data-tooltip="Emojis">😊</button>
+        <div class="fab-divider"></div>
+        <button class="fab-btn" data-tooltip="Foto">📷</button>
+        <button class="fab-btn" data-tooltip="Documento">📄</button>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/firebase-config.js"></script>
+    <script type="module" src="js/supabase-config.js"></script>
+    <script type="module" src="js/ui.js"></script> <!-- Lógica visual (sliders, modo oscuro) -->
+</body>
+                  </html>
