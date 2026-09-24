@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
+    <title>Nuestro Álbum</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/album.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="background-pattern"></div>
+
+    <header class="topbar">
+        <a href="dashboard.html" class="back-link">← Volver al diario</a>
+        <div class="logout-btn" id="logoutBtn">🔒 Cerrar sesión</div>
+    </header>
+
+    <main class="album-main">
+        <div class="album-header">
+            <h1 class="album-title">💕 Nuestro Álbum</h1>
+            <p class="album-subtitle">Momentos guardados con cariño</p>
+            <button class="new-btn" id="addPhotoBtn">+ Agregar foto</button>
+        </div>
+
+        <div id="albumGrid" class="album-grid"></div>
+    </main>
+
+    <!-- Reproductor de música persistente -->
+    <div class="music-player" id="reproductorMusica">
+        <button class="music-btn" id="musicaPlayPause" title="Reproducir/Pausar">▶️</button>
+        <span class="music-name" id="musicaNombre">Cargando...</span>
+        <label class="music-btn music-upload" title="Subir canción">
+            📤
+            <input type="file" id="musicaSubirInput" accept="audio/*" style="display:none;">
+        </label>
+        <button class="music-btn" id="musicaBorrarBtn" title="Eliminar canción">🗑️</button>
+    </div>
+
+    <!-- MODAL AGREGAR FOTO -->
+    <div id="photoModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Agregar recuerdo</h2>
+                <button class="close-btn" id="closePhotoModalBtn">&times;</button>
+            </div>
+            <form id="photoForm">
+                <div class="input-group">
+                    <label for="photoFile">Foto</label>
+                    <input type="file" id="photoFile" accept="image/*" required>
+                    <img id="photoPreview" src="" alt="Vista previa" style="display:none; max-width:100%; margin-top:12px; border-radius:10px; max-height:220px; object-fit:cover;">
+                </div>
+                <div class="input-group" style="position:relative;">
+                    <label for="photoCaption">Descripción (opcional)</label>
+                    <textarea id="photoCaption" rows="3" placeholder="Escribe algo bonito... 😊"></textarea>
+                    <button type="button" id="emojiPickerBtn" class="emoji-toggle-btn">😊</button>
+                    <div id="emojiPanel" class="emoji-panel"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" id="cancelPhotoBtn">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar foto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="js/album.js?v=1"></script>
+</body>
+</html>
