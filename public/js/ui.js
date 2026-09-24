@@ -1,67 +1,33 @@
-// 📍 public/js/ui.js (VERSIÓN FINAL COMPLETA)
+// 📍 public/js/ui.js (VERSIÓN MÍNIMA DE PRUEBA)
 import { auth } from "./firebase-config.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { guardarFragmento, cargarFragmentos } from "./firestore.js";
-import { subirArchivo } from "./storage.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     const root = document.documentElement;
+    console.log("✅ UI.js cargado correctamente");
 
     // --- 1. CONTROL DE LUZ ---
     const lightSlider = document.getElementById('lightSlider');
     const lightOverlay = document.getElementById('lightOverlay');
     const lightToggle = document.getElementById('lightToggle');
-    const bulbGlass = document.getElementById('bulbGlass');
-    const bulbGlow = document.getElementById('bulbGlow');
-    const bulbInterior = document.getElementById('bulbInterior');
-    const filaments = [document.getElementById('filament1'), document.getElementById('filament2'), document.getElementById('filament3')].filter(el => el !== null);
 
-    function updateLight() {
-        if (!lightSlider) return;
-        const intensity = lightSlider.value / 100;
-        root.style.setProperty('--light-intensity', intensity);
-        if (intensity === 0) {
-            if(lightOverlay) lightOverlay.classList.add('off');
-            if(lightToggle) lightToggle.textContent = '🌙';
-            if(bulbGlass) { bulbGlass.setAttribute('opacity', '0.3'); bulbGlass.setAttribute('fill', '#D0D0D0'); }
-            if(bulbGlow) bulbGlow.setAttribute('opacity', '0');
-            if(bulbInterior) bulbInterior.setAttribute('opacity', '0');
-            filaments.forEach(f => f.setAttribute('stroke', '#888888'));
-        } else {
-            if(lightOverlay) lightOverlay.classList.remove('off');
-            if(lightToggle) lightToggle.textContent = '💡';
-            if(bulbGlass) { bulbGlass.setAttribute('opacity', '0.95'); bulbGlass.setAttribute('fill', '#FFF4D6'); }
-            if(bulbGlow) bulbGlow.setAttribute('opacity', 0.4 + (intensity * 0.6));
-            if(bulbInterior) bulbInterior.setAttribute('opacity', intensity * 0.8);
-            filaments.forEach(f => { f.setAttribute('stroke', '#FF8C00'); f.setAttribute('stroke-width', 1.5 + (intensity * 1)); });
-        }
-    }
     if (lightSlider) {
-        lightSlider.addEventListener('input', updateLight);
-        const hour = new Date().getHours();
-        lightSlider.value = (hour >= 20 || hour < 7) ? 40 : 80;
-        updateLight();
-    }
-    if (lightToggle) {
-        lightToggle.addEventListener('click', () => {
-            lightSlider.value = (lightOverlay && lightOverlay.classList.contains('off')) ? 70 : 0;
-            updateLight();
+        lightSlider.addEventListener('input', () => {
+            const intensity = lightSlider.value / 100;
+            root.style.setProperty('--light-intensity', intensity);
+            if (lightOverlay) {
+                if (intensity === 0) lightOverlay.classList.add('off');
+                else lightOverlay.classList.remove('off');
+            }
+            if (lightToggle) lightToggle.textContent = intensity === 0 ? '🌙' : '';
         });
     }
 
     // --- 2. CONTROL DE TAMAÑO DE TEXTO ---
     const textSizeSlider = document.getElementById('textSizeSlider');
-    const textSizeToggle = document.getElementById('textSizeToggle');
-    function updateTextSize() {
-        if (!textSizeSlider) return;
-        root.style.setProperty('--base-font-size', textSizeSlider.value + 'px');
-        if (textSizeToggle) textSizeToggle.style.fontSize = (textSizeSlider.value * 1.1) + 'px';
-    }
-    if (textSizeSlider) { textSizeSlider.addEventListener('input', updateTextSize); updateTextSize(); }
-    if (textSizeToggle) {
-        textSizeToggle.addEventListener('click', () => {
-            textSizeSlider.value = parseInt(textSizeSlider.value) <= 16 ? 20 : 14;
-            updateTextSize();
+    if (textSizeSlider) {
+        textSizeSlider.addEventListener('input', () => {
+            root.style.setProperty('--base-font-size', textSizeSlider.value + 'px');
         });
     }
 
@@ -70,11 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnDarkMode) {
         btnDarkMode.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
-            if (document.body.classList.contains('dark-mode')) {
-                btnDarkMode.textContent = '☀️'; btnDarkMode.setAttribute('data-tooltip', 'Modo Claro');
-            } else {
-                btnDarkMode.textContent = ''; btnDarkMode.setAttribute('data-tooltip', 'Modo Oscuro');
-            }
+            btnDarkMode.textContent = document.body.classList.contains('dark-mode') ? '️' : '🌙';
         });
     }
 
@@ -82,134 +44,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
-            try { await signOut(auth); window.location.href = "index.html"; } 
-            catch (error) { console.error("Error al salir:", error); }
+            try {
+                await signOut(auth);
+                window.location.href = "index.html";
+            } catch (error) {
+                console.error("Error:", error);
+            }
         });
     }
 
-    // --- 5. LÓGICA DEL MODAL Y BASE DE DATOS ---
+    // --- 5. MODAL SIMPLE ---
     const newFragmentBtn = document.getElementById('newFragmentBtn');
     const writeModal = document.getElementById('writeModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const cancelBtn = document.getElementById('cancelBtn');
-    const writeForm = document.getElementById('writeForm');
-    const fragmentsContainer = document.getElementById('fragmentsContainer');
-    const navItems = document.querySelectorAll('.nav-item');
-    const categoryTitle = document.getElementById('categoryTitle');
-    const categorySelect = document.getElementById('fragmentCategory'); // Selector del modal
 
-    const categoryNames = { 'poesia': 'Poesía', 'prosa': 'Prosa', 'ideas': 'Ideas', 'imagenes': 'Imágenes' };
-    let fragmentosEnMemoria = [];
-
-    // Función para abrir/cerrar modal
     function toggleModal(show) {
-        if (!writeModal) return;
-        if (show) {
-            writeModal.classList.add('active');
-            // Si hay un selector de categoría, sincronizarlo con la barra superior
-            if (categorySelect) {
-                const activeNav = document.querySelector('.nav-item.active');
-                if (activeNav) categorySelect.value = activeNav.getAttribute('data-category');
-            }
-        } else { 
-            writeModal.classList.remove('active'); 
-            if(writeForm) writeForm.reset(); 
+        if (writeModal) {
+            if (show) writeModal.classList.add('active');
+            else writeModal.classList.remove('active');
         }
     }
+
     if (newFragmentBtn) newFragmentBtn.addEventListener('click', () => toggleModal(true));
     if (closeModalBtn) closeModalBtn.addEventListener('click', () => toggleModal(false));
     if (cancelBtn) cancelBtn.addEventListener('click', () => toggleModal(false));
-    if (writeModal) {
-        writeModal.addEventListener('click', (e) => { if (e.target === writeModal) toggleModal(false); });
-    }
 
-    // --- 5.1 LÓGICA DE ARCHIVOS Y BOTONES INFERIORES ---
-    const btnCamera = document.getElementById('btnCamera');
-    const btnDoc = document.getElementById('btnDoc');
-    const btnEmoji = document.querySelector('.fab-right .fab-btn'); // Botón de emojis
-    const fileImageInput = document.getElementById('fileImage');
-    const fileDocInput = document.getElementById('fileDoc');
-    const filePreviewArea = document.getElementById('filePreview');
-    const fileNameText = document.getElementById('fileName');
-    const imagePreview = document.getElementById('imagePreview');
-    const removeFileBtn = document.getElementById('removeFileBtn');
-    
-    let selectedFile = null;
-    let selectedFileType = null;
-
-    // Función para abrir el modal y luego activar el selector
-    function openModalAndTrigger(triggerFn) {
-        toggleModal(true);
-        setTimeout(() => {
-            if (triggerFn) triggerFn();
-        }, 300);
-    }
-
-    if (btnCamera) btnCamera.addEventListener('click', () => openModalAndTrigger(() => fileImageInput ? fileImageInput.click() : null));
-    if (btnDoc) btnDoc.addEventListener('click', () => openModalAndTrigger(() => fileDocInput ? fileDocInput.click() : null));
-    if (btnEmoji) btnEmoji.addEventListener('click', () => openModalAndTrigger(null));
-
-    function handleFileSelect(event, type) {
-        const file = event.target.files[0];
-        if (file) {
-            selectedFile = file;
-            selectedFileType = type;
-            if(filePreviewArea) filePreviewArea.style.display = 'block';
-            if(fileNameText) fileNameText.textContent = `Archivo: ${file.name}`;
-            
-            if (type === 'imagen' && imagePreview) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    imagePreview.src = e.target.result;
-                    imagePreview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            } else if (imagePreview) {
-                imagePreview.style.display = 'none';
-            }
-        }
-    }
-
-    if (fileImageInput) fileImageInput.addEventListener('change', (e) => handleFileSelect(e, 'imagen'));
-    if (fileDocInput) fileDocInput.addEventListener('change', (e) => handleFileSelect(e, 'documento'));
-
-    if (removeFileBtn) {
-        removeFileBtn.addEventListener('click', () => {
-            selectedFile = null;
-            selectedFileType = null;
-            if(filePreviewArea) filePreviewArea.style.display = 'none';
-            if(fileImageInput) fileImageInput.value = '';
-            if(fileDocInput) fileDocInput.value = '';
-        });
-    }
-
-    // Si cambia la categoría en el modal, actualizar la barra superior
-    if (categorySelect) {
-        categorySelect.addEventListener('change', (e) => {
-            const nuevaCategoria = e.target.value;
-            navItems.forEach(nav => {
-                nav.classList.remove('active');
-                if (nav.getAttribute('data-category') === nuevaCategoria) {
-                    nav.classList.add('active');
-                }
-            });
-            if (categoryTitle && categoryNames[nuevaCategoria]) {
-                categoryTitle.textContent = categoryNames[nuevaCategoria];
-            }
-        });
-    }
-
-    // --- 5.2 RENDERIZAR Y GUARDAR ---
-    async function renderFragmentos(tipo) {
-        if (!fragmentsContainer) return;
-        fragmentsContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding: 20px;">Cargando tus fragmentos...</p>';
-        
-        const fragmentos = await cargarFragmentos(tipo);
-        fragmentosEnMemoria = fragmentos; // Guardar en memoria para búsqueda
-        fragmentsContainer.innerHTML = ''; 
-
-        if (fragmentos.length === 0) {
-            fragmentsContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding: 20px;">Aún no hay fragmentos en esta categoría. ¡Sé el primero en escribir!</p>';
+    console.log("✅ Todos los botones básicos están activos");
+});: 20px;">Aún no hay fragmentos en esta categoría. ¡Sé el primero en escribir!</p>';
             return;
         }
 
