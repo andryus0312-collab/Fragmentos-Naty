@@ -1,8 +1,8 @@
-// 📍 public/js/ui.js
+// 📍 public/js/ui.js (VERSIÓN FINAL COMPLETA)
 import { auth } from "./firebase-config.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { guardarFragmento, cargarFragmentos } from "./firestore.js";
-import { subirArchivo } from "./storage.js"; // AGREGAR ESTA LÍNEA
+import { subirArchivo } from "./storage.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     const root = document.documentElement;
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (document.body.classList.contains('dark-mode')) {
                 btnDarkMode.textContent = '☀️'; btnDarkMode.setAttribute('data-tooltip', 'Modo Claro');
             } else {
-                btnDarkMode.textContent = '🌙'; btnDarkMode.setAttribute('data-tooltip', 'Modo Oscuro');
+                btnDarkMode.textContent = ''; btnDarkMode.setAttribute('data-tooltip', 'Modo Oscuro');
             }
         });
     }
@@ -96,10 +96,33 @@ document.addEventListener("DOMContentLoaded", () => {
     const fragmentsContainer = document.getElementById('fragmentsContainer');
     const navItems = document.querySelectorAll('.nav-item');
     const categoryTitle = document.getElementById('categoryTitle');
+    const categorySelect = document.getElementById('fragmentCategory'); // Selector del modal
 
     const categoryNames = { 'poesia': 'Poesía', 'prosa': 'Prosa', 'ideas': 'Ideas', 'imagenes': 'Imágenes' };
-    let fragmentosEnMemoria = []; // Aquí guardaremos los fragmentos para buscar
-    
+    let fragmentosEnMemoria = [];
+
+    // Función para abrir/cerrar modal
+    function toggleModal(show) {
+        if (!writeModal) return;
+        if (show) {
+            writeModal.classList.add('active');
+            // Si hay un selector de categoría, sincronizarlo con la barra superior
+            if (categorySelect) {
+                const activeNav = document.querySelector('.nav-item.active');
+                if (activeNav) categorySelect.value = activeNav.getAttribute('data-category');
+            }
+        } else { 
+            writeModal.classList.remove('active'); 
+            if(writeForm) writeForm.reset(); 
+        }
+    }
+    if (newFragmentBtn) newFragmentBtn.addEventListener('click', () => toggleModal(true));
+    if (closeModalBtn) closeModalBtn.addEventListener('click', () => toggleModal(false));
+    if (cancelBtn) cancelBtn.addEventListener('click', () => toggleModal(false));
+    if (writeModal) {
+        writeModal.addEventListener('click', (e) => { if (e.target === writeModal) toggleModal(false); });
+    }
+
     // --- 5.1 LÓGICA DE ARCHIVOS Y BOTONES INFERIORES ---
     const btnCamera = document.getElementById('btnCamera');
     const btnDoc = document.getElementById('btnDoc');
@@ -110,58 +133,38 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileNameText = document.getElementById('fileName');
     const imagePreview = document.getElementById('imagePreview');
     const removeFileBtn = document.getElementById('removeFileBtn');
-    const categorySelect = document.getElementById('fragmentCategory'); // NUEVO
     
     let selectedFile = null;
     let selectedFileType = null;
 
-    // Función para abrir el modal primero, y luego activar el selector
+    // Función para abrir el modal y luego activar el selector
     function openModalAndTrigger(triggerFn) {
         toggleModal(true);
-        // Esperar a que el modal esté visible antes de activar el selector
         setTimeout(() => {
             if (triggerFn) triggerFn();
         }, 300);
     }
 
-    // Botón de cámara: abre modal y luego selector de imagen
-    if (btnCamera) {
-        btnCamera.addEventListener('click', () => {
-            openModalAndTrigger(() => fileImageInput.click());
-        });
-    }
+    if (btnCamera) btnCamera.addEventListener('click', () => openModalAndTrigger(() => fileImageInput ? fileImageInput.click() : null));
+    if (btnDoc) btnDoc.addEventListener('click', () => openModalAndTrigger(() => fileDocInput ? fileDocInput.click() : null));
+    if (btnEmoji) btnEmoji.addEventListener('click', () => openModalAndTrigger(null));
 
-    // Botón de documento: abre modal y luego selector de PDF
-    if (btnDoc) {
-        btnDoc.addEventListener('click', () => {
-            openModalAndTrigger(() => fileDocInput.click());
-        });
-    }
-
-    // Botón de emojis: solo abre el modal (los emojis vendrán en el siguiente paso)
-    if (btnEmoji) {
-        btnEmoji.addEventListener('click', () => {
-            openModalAndTrigger(null);
-        });
-    }
-
-    // Cuando se selecciona un archivo
     function handleFileSelect(event, type) {
         const file = event.target.files[0];
         if (file) {
             selectedFile = file;
             selectedFileType = type;
-            filePreviewArea.style.display = 'block';
-            fileNameText.textContent = `Archivo: ${file.name}`;
+            if(filePreviewArea) filePreviewArea.style.display = 'block';
+            if(fileNameText) fileNameText.textContent = `Archivo: ${file.name}`;
             
-            if (type === 'imagen') {
+            if (type === 'imagen' && imagePreview) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     imagePreview.src = e.target.result;
                     imagePreview.style.display = 'block';
                 };
                 reader.readAsDataURL(file);
-            } else {
+            } else if (imagePreview) {
                 imagePreview.style.display = 'none';
             }
         }
@@ -174,17 +177,16 @@ document.addEventListener("DOMContentLoaded", () => {
         removeFileBtn.addEventListener('click', () => {
             selectedFile = null;
             selectedFileType = null;
-            filePreviewArea.style.display = 'none';
-            fileImageInput.value = '';
-            fileDocInput.value = '';
+            if(filePreviewArea) filePreviewArea.style.display = 'none';
+            if(fileImageInput) fileImageInput.value = '';
+            if(fileDocInput) fileDocInput.value = '';
         });
     }
 
-    // NUEVO: Cuando cambia la categoría en el selector, actualizar la barra superior
+    // Si cambia la categoría en el modal, actualizar la barra superior
     if (categorySelect) {
         categorySelect.addEventListener('change', (e) => {
             const nuevaCategoria = e.target.value;
-            // Actualizar la barra de navegación superior
             navItems.forEach(nav => {
                 nav.classList.remove('active');
                 if (nav.getAttribute('data-category') === nuevaCategoria) {
@@ -195,38 +197,196 @@ document.addEventListener("DOMContentLoaded", () => {
                 categoryTitle.textContent = categoryNames[nuevaCategoria];
             }
         });
-                                       }
-    
-    let selectedFile = null; // Aquí guardaremos el archivo temporalmente
-    let selectedFileType = null; // 'imagen' o 'documento'
-
-    // Abrir selector de archivos al hacer clic en los botones
-    if (btnCamera) btnCamera.addEventListener('click', () => fileImageInput.click());
-    if (btnDoc) btnDoc.addEventListener('click', () => fileDocInput.click());
-
-    // Cuando se selecciona un archivo
-    function handleFileSelect(event, type) {
-        const file = event.target.files[0];
-        if (file) {
-            selectedFile = file;
-            selectedFileType = type;
-            
-            // Mostrar vista previa
-            filePreviewArea.style.display = 'block';
-            fileNameText.textContent = `Archivo seleccionado: ${file.name}`;
-            
-            if (type === 'imagen') {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    imagePreview.src = e.target.result;
-                    imagePreview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            } else {
-                imagePreview.style.display = 'none';
-            }
-        }
     }
+
+    // --- 5.2 RENDERIZAR Y GUARDAR ---
+    async function renderFragmentos(tipo) {
+        if (!fragmentsContainer) return;
+        fragmentsContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding: 20px;">Cargando tus fragmentos...</p>';
+        
+        const fragmentos = await cargarFragmentos(tipo);
+        fragmentosEnMemoria = fragmentos; // Guardar en memoria para búsqueda
+        fragmentsContainer.innerHTML = ''; 
+
+        if (fragmentos.length === 0) {
+            fragmentsContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding: 20px;">Aún no hay fragmentos en esta categoría. ¡Sé el primero en escribir!</p>';
+            return;
+        }
+
+        fragmentos.forEach(frag => {
+            let fechaStr = "Fecha reciente";
+            if (frag.fecha && frag.fecha.seconds) {
+                const date = new Date(frag.fecha.seconds * 1000);
+                fechaStr = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+            }
+
+            let archivoHTML = '';
+            if (frag.url_archivo) {
+                if (frag.tipo_archivo === 'imagen') {
+                    archivoHTML = `<img src="${frag.url_archivo}" alt="Imagen adjunta" class="card-image">`;
+                } else if (frag.tipo_archivo === 'documento') {
+                    archivoHTML = `<a href="${frag.url_archivo}" target="_blank" class="card-doc-link">📄 Ver / Descargar Documento</a>`;
+                }
+            }
+
+            const card = document.createElement('div');
+            card.className = 'fragment-card';
+            card.innerHTML = `
+                <div class="card-meta">${fechaStr}</div>
+                <h3 class="card-title">${frag.titulo || 'Sin título'}</h3>
+                ${archivoHTML}
+                <p class="card-text">${frag.contenido ? frag.contenido.replace(/\n/g, '<br>') : ''}</p>
+            `;
+            fragmentsContainer.appendChild(card);
+        });
+    }
+
+    if (writeForm) {
+        writeForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const titulo = document.getElementById('fragmentTitle').value.trim();
+            const contenido = document.getElementById('fragmentText').value.trim();
+            
+            const tipo = categorySelect ? categorySelect.value : 'poesia';
+
+            if (!contenido && !selectedFile) { 
+                alert("Por favor escribe algo o adjunta un archivo."); 
+                return; 
+            }
+
+            const btnSave = writeForm.querySelector('.btn-save');
+            const originalText = btnSave.textContent;
+            btnSave.textContent = "Procesando...";
+            btnSave.disabled = true;
+
+            let urlArchivo = null;
+            let tipoArchivo = null;
+
+            if (selectedFile) {
+                btnSave.textContent = "Subiendo archivo...";
+                const folder = selectedFileType === 'imagen' ? 'fotos' : 'documentos';
+                urlArchivo = await subirArchivo(selectedFile, folder);
+                tipoArchivo = selectedFileType;
+                
+                if (!urlArchivo) {
+                    alert("Error al subir el archivo. Intenta de nuevo.");
+                    btnSave.textContent = originalText;
+                    btnSave.disabled = false;
+                    return;
+                }
+            }
+
+            btnSave.textContent = "Guardando escrito...";
+            const result = await guardarFragmento(tipo, titulo, contenido, urlArchivo, tipoArchivo);
+
+            if (result.success) {
+                toggleModal(false);
+                renderFragmentos(tipo);
+            } else {
+                alert("Error al guardar: " + result.error);
+            }
+
+            btnSave.textContent = originalText;
+            btnSave.disabled = false;
+            selectedFile = null;
+            selectedFileType = null;
+            if(filePreviewArea) filePreviewArea.style.display = 'none';
+            if(fileImageInput) fileImageInput.value = '';
+            if(fileDocInput) fileDocInput.value = '';
+        });
+    }
+
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            navItems.forEach(nav => nav.classList.remove('active'));
+            item.classList.add('active');
+            const category = item.getAttribute('data-category');
+            if (categoryTitle && categoryNames[category]) categoryTitle.textContent = categoryNames[category];
+            renderFragmentos(category);
+        });
+    });
+
+    const initialCategory = document.querySelector('.nav-item.active')?.getAttribute('data-category') || 'poesia';
+    renderFragmentos(initialCategory);
+
+    // --- 6. BÚSQUEDA ---
+    const btnSearch = document.getElementById('btnSearch');
+    const searchModal = document.getElementById('searchModal');
+    const closeSearchBtn = document.getElementById('closeSearchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+
+    if (btnSearch) btnSearch.addEventListener('click', () => {
+        if(searchModal) {
+            searchModal.classList.add('active');
+            if(searchInput) { searchInput.value = ''; searchInput.focus(); }
+            if(searchResults) searchResults.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Empieza a escribir para buscar...</p>';
+        }
+    });
+    if (closeSearchBtn) closeSearchBtn.addEventListener('click', () => searchModal.classList.remove('active'));
+    if (searchModal) searchModal.addEventListener('click', (e) => { if (e.target === searchModal) searchModal.classList.remove('active'); });
+
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const texto = e.target.value.toLowerCase().trim();
+            if (!searchResults) return;
+            
+            if (texto.length < 2) {
+                searchResults.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Escribe al menos 2 caracteres...</p>';
+                return;
+            }
+
+            const resultados = fragmentosEnMemoria.filter(frag => {
+                const titulo = (frag.titulo || '').toLowerCase();
+                const contenido = (frag.contenido || '').toLowerCase();
+                return titulo.includes(texto) || contenido.includes(texto);
+            });
+
+            if (resultados.length === 0) {
+                searchResults.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No se encontraron fragmentos.</p>';
+            } else {
+                searchResults.innerHTML = '';
+                resultados.forEach(frag => {
+                    const item = document.createElement('div');
+                    item.className = 'search-result-item';
+                    item.innerHTML = `<div class="search-result-title">${frag.titulo || 'Sin título'}</div><div class="search-result-text">${frag.contenido || 'Sin contenido'}</div>`;
+                    item.addEventListener('click', () => searchModal.classList.remove('active'));
+                    searchResults.appendChild(item);
+                });
+            }
+        });
+    }
+
+    // --- 7. EXPORTAR PDF ---
+    const btnExport = document.getElementById('btnExport');
+    if (btnExport) {
+        btnExport.addEventListener('click', async () => {
+            if (!fragmentsContainer || fragmentsContainer.children.length === 0) {
+                alert("No hay fragmentos para exportar."); return;
+            }
+            const originalTooltip = btnExport.getAttribute('data-tooltip');
+            btnExport.textContent = '⏳';
+            btnExport.disabled = true;
+
+            const opt = {
+                margin: 15, filename: `Fragmentos.pdf`, image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            try {
+                if (typeof html2pdf !== 'undefined') {
+                    await html2pdf().set(opt).from(fragmentsContainer).save();
+                } else {
+                    alert("La librería PDF no cargó. Revisa tu conexión.");
+                }
+            } catch (error) { console.error("Error PDF:", error); } 
+            finally {
+                btnExport.textContent = '📥'; btnExport.disabled = false;
+            }
+        });
+    }
+}); }
 
     if (fileImageInput) fileImageInput.addEventListener('change', (e) => handleFileSelect(e, 'imagen'));
     if (fileDocInput) fileDocInput.addEventListener('change', (e) => handleFileSelect(e, 'documento'));
