@@ -1,247 +1,285 @@
-// 📍 public/js/ui.js (VERSIÓN SIN IMPORTS - TODO EN UNO)
+// 📍 public/js/ui.js
+import { auth } from "./firebase-config.js";
+import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { guardarFragmento, cargarFragmentos } from "./firestore.js";
+import { subirArchivo } from "./storage.js";
 
-// Esperar a que Firebase esté listo
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("🚀 Iniciando Fragmentos...");
-    
-    const root = document.documentElement;
+  console.log("🚀 Fragmentos iniciado");
+  const root = document.documentElement;
 
-    // --- 1. CONTROL DE LUZ ---
-    const lightSlider = document.getElementById('lightSlider');
-    const lightOverlay = document.getElementById('lightOverlay');
-    const lightToggle = document.getElementById('lightToggle');
+  // LUZ
+  const lightSlider = document.getElementById('lightSlider');
+  const lightOverlay = document.getElementById('lightOverlay');
+  const lightToggle = document.getElementById('lightToggle');
+  const bulbGlass = document.getElementById('bulbGlass');
+  const bulbGlow = document.getElementById('bulbGlow');
+  const bulbInterior = document.getElementById('bulbInterior');
+  const filaments = [document.getElementById('filament1'), document.getElementById('filament2'), document.getElementById('filament3')].filter(el => el);
 
-    if (lightSlider) {
-        console.log("✅ Slider de luz encontrado");
-        lightSlider.addEventListener('input', () => {
-            const intensity = lightSlider.value / 100;
-            root.style.setProperty('--light-intensity', intensity);
-            if (lightOverlay) {
-                if (intensity === 0) lightOverlay.classList.add('off');
-                else lightOverlay.classList.remove('off');
-            }
-            if (lightToggle) lightToggle.textContent = intensity === 0 ? '🌙' : '💡';
-            console.log("💡 Intensidad:", intensity);
-        });
+  function updateLight() {
+    if (!lightSlider) return;
+    const intensity = lightSlider.value / 100;
+    root.style.setProperty('--light-intensity', intensity);
+    if (intensity === 0) {
+      if (lightOverlay) lightOverlay.classList.add('off');
+      if (lightToggle) lightToggle.textContent = '🌙';
+      if (bulbGlass) { bulbGlass.setAttribute('opacity', '0.3'); bulbGlass.setAttribute('fill', '#D0D0D0'); }
+      if (bulbGlow) bulbGlow.setAttribute('opacity', '0');
+      if (bulbInterior) bulbInterior.setAttribute('opacity', '0');
+      filaments.forEach(f => f.setAttribute('stroke', '#888888'));
     } else {
-        console.error("❌ No se encontró el slider de luz");
+      if (lightOverlay) lightOverlay.classList.remove('off');
+      if (lightToggle) lightToggle.textContent = '💡';
+      if (bulbGlass) { bulbGlass.setAttribute('opacity', '0.95'); bulbGlass.setAttribute('fill', '#FFF4D6'); }
+      if (bulbGlow) bulbGlow.setAttribute('opacity', 0.4 + (intensity * 0.6));
+      if (bulbInterior) bulbInterior.setAttribute('opacity', intensity * 0.8);
+      filaments.forEach(f => { f.setAttribute('stroke', '#FF8C00'); f.setAttribute('stroke-width', 1.5 + intensity); });
     }
+  }
 
-    // --- 2. CONTROL DE TAMAÑO DE TEXTO ---
-    const textSizeSlider = document.getElementById('textSizeSlider');
-    const textSizeToggle = document.getElementById('textSizeToggle');
-    
-    if (textSizeSlider) {
-        console.log("✅ Slider de texto encontrado");
-        textSizeSlider.addEventListener('input', () => {
-            root.style.setProperty('--base-font-size', textSizeSlider.value + 'px');
-            if (textSizeToggle) textSizeToggle.style.fontSize = (textSizeSlider.value * 1.1) + 'px';
-        });
+  if (lightSlider) {
+    lightSlider.addEventListener('input', updateLight);
+    const hour = new Date().getHours();
+    lightSlider.value = (hour >= 20 || hour < 7) ? 40 : 80;
+    updateLight();
+  }
+  if (lightToggle) lightToggle.addEventListener('click', () => {
+    lightSlider.value = (lightOverlay && lightOverlay.classList.contains('off')) ? 70 : 0;
+    updateLight();
+  });
+
+  // TEXTO
+  const textSizeSlider = document.getElementById('textSizeSlider');
+  const textSizeToggle = document.getElementById('textSizeToggle');
+  if (textSizeSlider) {
+    textSizeSlider.addEventListener('input', () => {
+      root.style.setProperty('--base-font-size', textSizeSlider.value + 'px');
+      if (textSizeToggle) textSizeToggle.style.fontSize = (textSizeSlider.value * 1.1) + 'px';
+    });
+  }
+  if (textSizeToggle) textSizeToggle.addEventListener('click', () => {
+    textSizeSlider.value = parseInt(textSizeSlider.value) <= 16 ? 20 : 14;
+    textSizeSlider.dispatchEvent(new Event('input'));
+  });
+
+  // MODO OSCURO
+  const btnDarkMode = document.getElementById('btnDarkMode');
+  if (btnDarkMode) btnDarkMode.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    btnDarkMode.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+  });
+
+  // CERRAR SESIÓN
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) logoutBtn.addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = "index.html";
+  });
+
+  // MODAL
+  const newFragmentBtn = document.getElementById('newFragmentBtn');
+  const writeModal = document.getElementById('writeModal');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const writeForm = document.getElementById('writeForm');
+  const categorySelect = document.getElementById('fragmentCategory');
+
+  function toggleModal(show) {
+    if (!writeModal) return;
+    if (show) {
+      writeModal.classList.add('active');
+      if (categorySelect) {
+        const activeNav = document.querySelector('.nav-item.active');
+        if (activeNav) categorySelect.value = activeNav.getAttribute('data-category');
+      }
+    } else {
+      writeModal.classList.remove('active');
+      if (writeForm) writeForm.reset();
     }
+  }
 
-    if (textSizeToggle) {
-        textSizeToggle.addEventListener('click', () => {
-            textSizeSlider.value = parseInt(textSizeSlider.value) <= 16 ? 20 : 14;
-            textSizeSlider.dispatchEvent(new Event('input'));
-        });
+  if (newFragmentBtn) newFragmentBtn.addEventListener('click', () => toggleModal(true));
+  if (closeModalBtn) closeModalBtn.addEventListener('click', () => toggleModal(false));
+  if (cancelBtn) cancelBtn.addEventListener('click', () => toggleModal(false));
+  if (writeModal) writeModal.addEventListener('click', (e) => { if (e.target === writeModal) toggleModal(false); });
+
+  // BOTONES INFERIORES
+  const btnCamera = document.getElementById('btnCamera');
+  const btnDoc = document.getElementById('btnDoc');
+  const btnEmoji = document.querySelector('.fab-right .fab-btn');
+  const fileImageInput = document.getElementById('fileImage');
+  const fileDocInput = document.getElementById('fileDoc');
+  const filePreviewArea = document.getElementById('filePreview');
+  const fileNameText = document.getElementById('fileName');
+  const imagePreview = document.getElementById('imagePreview');
+  const removeFileBtn = document.getElementById('removeFileBtn');
+
+  let selectedFile = null;
+  let selectedFileType = null;
+
+  function openModalAndTrigger(fn) {
+    toggleModal(true);
+    setTimeout(() => { if (fn) fn(); }, 300);
+  }
+
+  if (btnCamera) btnCamera.addEventListener('click', () => openModalAndTrigger(() => fileImageInput && fileImageInput.click()));
+  if (btnDoc) btnDoc.addEventListener('click', () => openModalAndTrigger(() => fileDocInput && fileDocInput.click()));
+  if (btnEmoji) btnEmoji.addEventListener('click', () => openModalAndTrigger(null));
+
+  function handleFileSelect(event, type) {
+    const file = event.target.files[0];
+    if (file) {
+      selectedFile = file;
+      selectedFileType = type;
+      if (filePreviewArea) filePreviewArea.style.display = 'block';
+      if (fileNameText) fileNameText.textContent = `Archivo: ${file.name}`;
+      if (type === 'imagen' && imagePreview) {
+        const reader = new FileReader();
+        reader.onload = (e) => { imagePreview.src = e.target.result; imagePreview.style.display = 'block'; };
+        reader.readAsDataURL(file);
+      } else if (imagePreview) imagePreview.style.display = 'none';
     }
+  }
 
-    // --- 3. MODO OSCURO ---
-    const btnDarkMode = document.getElementById('btnDarkMode');
-    if (btnDarkMode) {
-        console.log("✅ Botón modo oscuro encontrado");
-        btnDarkMode.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            btnDarkMode.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-        });
+  if (fileImageInput) fileImageInput.addEventListener('change', (e) => handleFileSelect(e, 'imagen'));
+  if (fileDocInput) fileDocInput.addEventListener('change', (e) => handleFileSelect(e, 'documento'));
+  if (removeFileBtn) removeFileBtn.addEventListener('click', () => {
+    selectedFile = null; selectedFileType = null;
+    if (filePreviewArea) filePreviewArea.style.display = 'none';
+    if (fileImageInput) fileImageInput.value = '';
+    if (fileDocInput) fileDocInput.value = '';
+  });
+
+  // CATEGORÍA
+  const navItems = document.querySelectorAll('.nav-item');
+  const categoryTitle = document.getElementById('categoryTitle');
+  const categoryNames = { 'poesia': 'Poesía', 'prosa': 'Prosa', 'ideas': 'Ideas', 'imagenes': 'Imágenes' };
+
+  if (categorySelect) categorySelect.addEventListener('change', (e) => {
+    const cat = e.target.value;
+    navItems.forEach(nav => {
+      nav.classList.remove('active');
+      if (nav.getAttribute('data-category') === cat) nav.classList.add('active');
+    });
+    if (categoryTitle && categoryNames[cat]) categoryTitle.textContent = categoryNames[cat];
+  });
+
+  // RENDERIZAR
+  const fragmentsContainer = document.getElementById('fragmentsContainer');
+  let fragmentosEnMemoria = [];
+
+  async function renderFragmentos(tipo) {
+    if (!fragmentsContainer) return;
+    fragmentsContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:20px;">Cargando...</p>';
+    const fragmentos = await cargarFragmentos(tipo);
+    fragmentosEnMemoria = fragmentos;
+    fragmentsContainer.innerHTML = '';
+    if (fragmentos.length === 0) {
+      fragmentsContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:20px;">Aún no hay fragmentos. ¡Sé el primero!</p>';
+      return;
     }
+    fragmentos.forEach(frag => {
+      let fechaStr = "Reciente";
+      if (frag.fecha && frag.fecha.seconds) {
+        const date = new Date(frag.fecha.seconds * 1000);
+        fechaStr = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+      }
+      let archivoHTML = '';
+      if (frag.url_archivo) {
+        if (frag.tipo_archivo === 'imagen') archivoHTML = `<img src="${frag.url_archivo}" class="card-image">`;
+        else if (frag.tipo_archivo === 'documento') archivoHTML = `<a href="${frag.url_archivo}" target="_blank" class="card-doc-link">📄 Ver Documento</a>`;
+      }
+      const card = document.createElement('div');
+      card.className = 'fragment-card';
+      card.innerHTML = `<div class="card-meta">${fechaStr}</div><h3 class="card-title">${frag.titulo || 'Sin título'}</h3>${archivoHTML}<p class="card-text">${frag.contenido ? frag.contenido.replace(/\n/g, '<br>') : ''}</p>`;
+      fragmentsContainer.appendChild(card);
+    });
+  }
 
-    // --- 4. CERRAR SESIÓN ---
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        console.log("✅ Botón cerrar sesión encontrado");
-        logoutBtn.addEventListener('click', () => {
-            console.log("🔒 Cerrando sesión...");
-            alert("Cerrar sesión (pendiente de implementar con Firebase)");
-        });
+  // GUARDAR
+  if (writeForm) writeForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const titulo = document.getElementById('fragmentTitle').value.trim();
+    const contenido = document.getElementById('fragmentText').value.trim();
+    const tipo = categorySelect ? categorySelect.value : 'poesia';
+    if (!contenido && !selectedFile) { alert("Escribe algo o adjunta un archivo."); return; }
+    const btnSave = writeForm.querySelector('.btn-save');
+    const originalText = btnSave.textContent;
+    btnSave.textContent = "Procesando..."; btnSave.disabled = true;
+    let urlArchivo = null, tipoArchivo = null;
+    if (selectedFile) {
+      btnSave.textContent = "Subiendo...";
+      urlArchivo = await subirArchivo(selectedFile, selectedFileType === 'imagen' ? 'fotos' : 'documentos');
+      tipoArchivo = selectedFileType;
+      if (!urlArchivo) { alert("Error al subir."); btnSave.textContent = originalText; btnSave.disabled = false; return; }
     }
+    btnSave.textContent = "Guardando...";
+    const result = await guardarFragmento(tipo, titulo, contenido, urlArchivo, tipoArchivo);
+    if (result.success) { toggleModal(false); renderFragmentos(tipo); }
+    else alert("Error: " + result.error);
+    btnSave.textContent = originalText; btnSave.disabled = false;
+    selectedFile = null; selectedFileType = null;
+    if (filePreviewArea) filePreviewArea.style.display = 'none';
+    if (fileImageInput) fileImageInput.value = '';
+    if (fileDocInput) fileDocInput.value = '';
+  });
 
-    // --- 5. MODAL ---
-    const newFragmentBtn = document.getElementById('newFragmentBtn');
-    const writeModal = document.getElementById('writeModal');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
+  navItems.forEach(item => item.addEventListener('click', () => {
+    navItems.forEach(nav => nav.classList.remove('active'));
+    item.classList.add('active');
+    const cat = item.getAttribute('data-category');
+    if (categoryTitle && categoryNames[cat]) categoryTitle.textContent = categoryNames[cat];
+    renderFragmentos(cat);
+  }));
 
-    function toggleModal(show) {
-        if (writeModal) {
-            if (show) {
-                writeModal.classList.add('active');
-                console.log("📝 Modal abierto");
-            } else {
-                writeModal.classList.remove('active');
-                console.log("📝 Modal cerrado");
-            }
-        }
+  const initialCat = document.querySelector('.nav-item.active')?.getAttribute('data-category') || 'poesia';
+  renderFragmentos(initialCat);
+
+  // BÚSQUEDA
+  const btnSearch = document.getElementById('btnSearch');
+  const searchModal = document.getElementById('searchModal');
+  const closeSearchBtn = document.getElementById('closeSearchBtn');
+  const searchInput = document.getElementById('searchInput');
+  const searchResults = document.getElementById('searchResults');
+
+  if (btnSearch) btnSearch.addEventListener('click', () => {
+    if (searchModal) { searchModal.classList.add('active'); if (searchInput) { searchInput.value = ''; searchInput.focus(); } }
+  });
+  if (closeSearchBtn) closeSearchBtn.addEventListener('click', () => searchModal && searchModal.classList.remove('active'));
+  if (searchModal) searchModal.addEventListener('click', (e) => { if (e.target === searchModal) searchModal.classList.remove('active'); });
+  if (searchInput) searchInput.addEventListener('input', (e) => {
+    const texto = e.target.value.toLowerCase().trim();
+    if (!searchResults) return;
+    if (texto.length < 2) { searchResults.innerHTML = '<p style="text-align:center; color:var(--text-muted);">Escribe al menos 2 caracteres...</p>'; return; }
+    const resultados = fragmentosEnMemoria.filter(f => (f.titulo || '').toLowerCase().includes(texto) || (f.contenido || '').toLowerCase().includes(texto));
+    if (resultados.length === 0) searchResults.innerHTML = '<p style="text-align:center; color:var(--text-muted);">No se encontraron.</p>';
+    else {
+      searchResults.innerHTML = '';
+      resultados.forEach(frag => {
+        const item = document.createElement('div');
+        item.className = 'search-result-item';
+        item.innerHTML = `<div class="search-result-title">${frag.titulo || 'Sin título'}</div><div class="search-result-text">${frag.contenido || ''}</div>`;
+        item.addEventListener('click', () => searchModal.classList.remove('active'));
+        searchResults.appendChild(item);
+      });
     }
+  });
 
-    if (newFragmentBtn) {
-        console.log("✅ Botón nuevo fragmento encontrado");
-        newFragmentBtn.addEventListener('click', () => toggleModal(true));
-    }
-    if (closeModalBtn) closeModalBtn.addEventListener('click', () => toggleModal(false));
-    if (cancelBtn) cancelBtn.addEventListener('click', () => toggleModal(false));
+  // PDF
+  const btnExport = document.getElementById('btnExport');
+  if (btnExport) btnExport.addEventListener('click', async () => {
+    if (!fragmentsContainer || fragmentsContainer.children.length === 0) { alert("No hay fragmentos."); return; }
+    if (typeof html2pdf === 'undefined') { alert("Librería PDF no cargó."); return; }
+    btnExport.textContent = '⏳'; btnExport.disabled = true;
+    try {
+      await html2pdf().set({ margin: 15, filename: 'Fragmentos.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4' } }).from(fragmentsContainer).save();
+    } catch (err) { console.error(err); }
+    finally { btnExport.textContent = '📥'; btnExport.disabled = false; }
+  });
 
-    console.log("✅✅✅ Todos los botones básicos están activos ✅✅✅");
-});pt = {
-                margin: 15, filename: `Fragmentos.pdf`, image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, logging: false },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            try {
-                if (typeof html2pdf !== 'undefined') {
-                    await html2pdf().set(opt).from(fragmentsContainer).save();
-                } else {
-                    alert("La librería PDF no cargó. Revisa tu conexión.");
-                }
-            } catch (error) { console.error("Error PDF:", error); } 
-            finally {
-                btnExport.textContent = '📥'; btnExport.disabled = false;
-            }
-        });
-    }
-}); }
-
-    if (fileImageInput) fileImageInput.addEventListener('change', (e) => handleFileSelect(e, 'imagen'));
-    if (fileDocInput) fileDocInput.addEventListener('change', (e) => handleFileSelect(e, 'documento'));
-
-    // Botón para quitar el archivo
-    if (removeFileBtn) {
-        removeFileBtn.addEventListener('click', () => {
-            selectedFile = null;
-            selectedFileType = null;
-            filePreviewArea.style.display = 'none';
-            fileImageInput.value = '';
-            fileDocInput.value = '';
-        });
-    }
-    
-    // Abrir y cerrar modal
-    function toggleModal(show) {
-        if (show) writeModal.classList.add('active');
-        else { writeModal.classList.remove('active'); writeForm.reset(); }
-    }
-    if (newFragmentBtn) newFragmentBtn.addEventListener('click', () => toggleModal(true));
-    if (closeModalBtn) closeModalBtn.addEventListener('click', () => toggleModal(false));
-    if (cancelBtn) cancelBtn.addEventListener('click', () => toggleModal(false));
-    if (writeModal) {
-        writeModal.addEventListener('click', (e) => { if (e.target === writeModal) toggleModal(false); });
-    }
-
-    // Función para mostrar los fragmentos en pantalla
-    async function renderFragmentos(tipo) {
-        if (!fragmentsContainer) return;
-        fragmentsContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding: 20px;">Cargando tus fragmentos...</p>';
-        
-        const fragmentos = await cargarFragmentos(tipo);
-        fragmentosEnMemoria = fragmentos; // Guardar en memoria para la búsqueda
-        fragmentsContainer.innerHTML = ''; 
-
-        if (fragmentos.length === 0) {
-            fragmentsContainer.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding: 20px;">Aún no hay fragmentos en esta categoría. ¡Sé el primero en escribir!</p>';
-            return;
-        }
-
-        fragmentos.forEach(frag => {
-            let fechaStr = "Fecha reciente";
-            if (frag.fecha && frag.fecha.seconds) {
-                const date = new Date(frag.fecha.seconds * 1000);
-                fechaStr = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-            }
-
-            // Lógica para mostrar archivos adjuntos
-            let archivoHTML = '';
-            if (frag.url_archivo) {
-                if (frag.tipo_archivo === 'imagen') {
-                    archivoHTML = `<img src="${frag.url_archivo}" alt="Imagen adjunta" class="card-image">`;
-                } else if (frag.tipo_archivo === 'documento') {
-                    archivoHTML = `
-                        <a href="${frag.url_archivo}" target="_blank" class="card-doc-link">
-                            📄 Ver / Descargar Documento
-                        </a>`;
-                }
-            }
-
-            const card = document.createElement('div');
-            card.className = 'fragment-card';
-            card.innerHTML = `
-                <div class="card-meta">${fechaStr}</div>
-                <h3 class="card-title">${frag.titulo || 'Sin título'}</h3>
-                ${archivoHTML}
-                <p class="card-text">${frag.contenido ? frag.contenido.replace(/\n/g, '<br>') : ''}</p>
-            `;
-            fragmentsContainer.appendChild(card);
-        });
-    }
-
-    // Guardar nuevo fragmento (con soporte para archivos y selector de categoría)
-    if (writeForm) {
-        writeForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const titulo = document.getElementById('fragmentTitle').value.trim();
-            const contenido = document.getElementById('fragmentText').value.trim();
-            
-            // USAR LA CATEGORÍA DEL SELECTOR DEL MODAL
-            const tipo = categorySelect ? categorySelect.value : 'poesia';
-
-            if (!contenido && !selectedFile) { 
-                alert("Por favor escribe algo o adjunta un archivo."); 
-                return; 
-            }
-
-            const btnSave = writeForm.querySelector('.btn-save');
-            const originalText = btnSave.textContent;
-            btnSave.textContent = "Procesando...";
-            btnSave.disabled = true;
-
-            let urlArchivo = null;
-            let tipoArchivo = null;
-
-            if (selectedFile) {
-                btnSave.textContent = "Subiendo archivo...";
-                const folder = selectedFileType === 'imagen' ? 'fotos' : 'documentos';
-                urlArchivo = await subirArchivo(selectedFile, folder);
-                tipoArchivo = selectedFileType;
-                
-                if (!urlArchivo) {
-                    alert("Error al subir el archivo. Intenta de nuevo.");
-                    btnSave.textContent = originalText;
-                    btnSave.disabled = false;
-                    return;
-                }
-            }
-
-            btnSave.textContent = "Guardando escrito...";
-            const result = await guardarFragmento(tipo, titulo, contenido, urlArchivo, tipoArchivo);
-
-            if (result.success) {
-                toggleModal(false);
-                renderFragmentos(tipo);
-            } else {
-                alert("Error al guardar: " + result.error);
-            }
-
-            btnSave.textContent = originalText;
-            btnSave.disabled = false;
-            selectedFile = null;
-            selectedFileType = null;
-            filePreviewArea.style.display = 'none';
-            fileImageInput.value = '';
-            fileDocInput.value = '';
-        });
-    }
-
-            // Guardar en Firestore (Base de datos)
+  console.log("✅ Todo listo");
+});datos)
             btnSave.textContent = "Guardando escrito...";
             const result = await guardarFragmento(tipo, titulo, contenido, urlArchivo, tipoArchivo);
 
