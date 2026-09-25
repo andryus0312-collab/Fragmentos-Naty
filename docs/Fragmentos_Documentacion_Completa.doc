@@ -260,45 +260,14 @@ service cloud.firestore {
 <b>Diagnóstico inicial (erróneo):</b> se sospechó del operador "==" dentro de where().<br>
 <b>Causa real:</b> coexistencia de varias versiones del archivo y copia corrupta desde el móvil (addEventListe ner, () = >, & &).<br>
 <b>Solución:</b> archivo nuevo, sin flechas ni && en la primera pasada, con verificación visual de integridad.<br>
-<h3>12.1 Registro de capturas del proceso</h3>
-<tr><td>img/12-firebase-config-placeholders.png</td><td>Credenciales de ejemplo sin reemplazar</td><td>Diagnóstico de login</td></tr>
-<h3>E-04 · Unexpected token '=='</h3>
-
-
-<p>index.html + auth.css (tarjeta centrada, Playfair Display, meta noindex,nofollow). auth.js con signInWithEmailAndPassword y redirección al dashboard.</p>
-<li><b>Sin indexación:</b> meta robots noindex, nofollow en ambas páginas.</li>
-<b>Verificación clave:</b> node --check sobre todos los .js → limpios; en modo incógnito el error no existía.<br>
-</table>
-<li><b>Sliders verticales gemelos:</b> tamaño de texto (<i>--base-font-size</i>, 12–24 px) e intensidad de luz (0–100).</li>
-</ol>
-<h3>Fase 1 — Planificación y servicios</h3>
-<h3>5.2 Componentes signature</h3>
-<ol>
-<h3>Cierre — Estabilización y añadidos</h3>
-<li>La caché del navegador simula bugs de sintaxis inexistentes.</li>
-
-</table>
-    match /{document=**} {
-<pre>rules_version = '2';
-<h3>Fase 8 — Seguridad y despliegue</h3>
-<h2>1. Objetivo y metodología</h2>
-<img src='https://andryus0312-collab.github.io/Fragmentos-Naty/docs/img/05-cache-vs-incognito.png' alt='Caché vs incógnito'/>
-<h3>Fase 2 — Repositorio y estructura</h3>
-<li>Un módulo debe cargarse desde una única URL (con o sin ?v=), nunca ambas.</li>
-<!-- ============ PARTE II ============ -->
-<table>
-
-</ul>
-<h3>Fase 7 — Búsqueda y exportación PDF</h3>
-<h2>6. Proceso de construcción (8 fases)</h2>
-<img src='https://andryus0312-collab.github.io/Fragmentos-Naty/docs/img/03-dashboard.png' alt='Dashboard'/>
-<h3>Fase 6 — Archivos con Supabase</h3>
-<tr class='alt'><td>Texto principal</td><td>#0A1628</td><td>Contraste en modo claro</td></tr>
-<ul>
-<h3>Fase 5 — Modal de escritura y Firestore</h3>
-<h2>7. Catálogo de funcionalidades</h2>
 <b>Lección:</b> el copiado móvil puede corromper tokens; verificar siempre el pegado.</p>
-<h3>Fase 4 — Dashboard interactivo</h3>
+<h3>E-05 · Illegal return statement (el fantasma)</h3>
+<p><b>Síntoma:</b> error de sintaxis que no desaparecía con ningún cambio de código.<br>
+<b>Verificación clave:</b> node --check sobre todos los .js → limpios; en modo incógnito el error no existía.<br>
+<b>Causa real:</b> el navegador servía una versión vieja cacheada del script.<br>
+<b>Solución:</b> prueba en incógnito como regla cero + versionado ?v=n en cada script.<br>
+<b>Lección:</b> un error "imposible" suele ser un artefacto del entorno, no del código.</p>
+<img src='https://andryus0312-collab.github.io/Fragmentos-Naty/docs/img/05-cache-vs-incognito.png' alt='Caché vs incógnito'/>
 <p class='fig'>Fig. 7 — El mismo sitio: error fantasma con caché, consola limpia en incógnito.</p>
 <h3>E-06 · failed-precondition en categorías</h3>
 <p><b>Síntoma:</b> ninguna categoría cargaba fragmentos; error rojo de Firestore.<br>
