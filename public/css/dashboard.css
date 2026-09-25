@@ -385,3 +385,25 @@ body.dark-mode .main-title { color: #90CDF4; }
     .music-name { max-width: 90px; font-size: 11px; }
     .music-btn { width: 30px; height: 30px; font-size: 13px; }
 }
+
+/* 📍 Visor de imagen en tamaño completo (lightbox) */
+.lightbox-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(10, 20, 30, 0.92);
+    display: none; align-items: center; justify-content: center; flex-direction: column;
+    z-index: 2000; padding: 20px; backdrop-filter: blur(6px);
+}
+.lightbox-overlay.active { display: flex; }
+.lightbox-img { max-width: 92vw; max-height: 76vh; border-radius: 10px; box-shadow: 0 15px 45px rgba(0,0,0,0.6); }
+.lightbox-close {
+    position: absolute; top: 18px; right: 22px; background: rgba(255,255,255,0.1);
+    border: none; color: white; font-size: 30px; width: 44px; height: 44px; border-radius: 50%;
+    cursor: pointer; line-height: 1; transition: background 0.2s;
+}
+.lightbox-close:hover { background: rgba(255,255,255,0.25); }
+.lightbox-download {
+    margin-top: 22px; background: var(--accent-green); color: white; text-decoration: none;
+    padding: 12px 26px; border-radius: 30px; font-weight: 700; cursor: pointer;
+    transition: background 0.2s, transform 0.2s; box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+}
+.lightbox-download:hover { background: var(--accent-green-dark); transform: translateY(-2px); }
