@@ -97,8 +97,16 @@ body.dark-mode .main-title { color: #90CDF4; }
 .new-btn { margin-top: 20px; background-color: var(--accent-green); color: white; border: none; padding: 12px 28px; border-radius: 30px; font-size: calc(15px * (var(--base-font-size) / 16px)); font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(31, 122, 76, 0.5); transition: transform 0.2s; }
 .new-btn:hover { transform: translateY(-3px); }
 
-.fragment-card { background-color: var(--card-bg); width: 100%; max-width: 900px; padding: 50px 60px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12); border: 2px solid rgba(0,0,0,0.05); transition: transform 0.2s, background-color 0.4s; }
+.fragment-card { background-color: var(--card-bg); width: 100%; max-width: 900px; padding: 50px 60px; border-radius: 16px; margin-bottom: 30px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12); border: 2px solid rgba(0,0,0,0.05); transition: transform 0.2s, background-color 0.4s; position: relative; }
 .fragment-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18); }
+.card-delete {
+    position: absolute; top: 18px; right: 18px; width: 34px; height: 34px; border-radius: 50%;
+    border: none; background: rgba(229,62,62,0.12); color: #E53E3E; cursor: pointer;
+    font-size: 15px; opacity: 0; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+}
+.fragment-card:hover .card-delete { opacity: 1; }
+.card-delete:hover { background: #E53E3E; color: white; transform: scale(1.1); }
+@media (max-width: 768px) { .card-delete { opacity: 1; top: 12px; right: 12px; width: 30px; height: 30px; font-size: 13px; } }
 .card-meta { font-size: calc(13px * (var(--base-font-size) / 16px)); color: var(--accent-green); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; font-weight: 700; }
 .card-title { font-family: 'Playfair Display', serif; font-size: calc(30px * (var(--base-font-size) / 16px)); margin-bottom: 25px; color: var(--text-main); font-weight: 700; }
 .card-text { font-family: 'Playfair Display', serif; font-style: italic; font-size: calc(20px * (var(--base-font-size) / 16px)); line-height: 2.0; color: var(--text-muted); }
