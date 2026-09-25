@@ -2,6 +2,7 @@ import { auth } from "./firebase-config.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { guardarFragmento, cargarFragmentos } from "./firestore.js";
 import { subirArchivo } from "./storage.js";
+import { openLightbox } from "./lightbox.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   console.log("UI iniciado");
@@ -102,6 +103,13 @@ document.addEventListener("DOMContentLoaded", () => {
   if (closeModalBtn) closeModalBtn.addEventListener('click', () => toggleModal(false));
   if (cancelBtn) cancelBtn.addEventListener('click', () => toggleModal(false));
   if (writeModal) writeModal.addEventListener('click', (e) => { if (e.target === writeModal) toggleModal(false); });
+
+  // Abrir en pantalla completa cualquier imagen de un fragmento (delegado: cubre tarjetas futuras también)
+  if (fragmentsContainer) fragmentsContainer.addEventListener('click', (e) => {
+    if (e.target.classList.contains('card-image')) {
+      openLightbox(e.target.src, 'fragmento.jpg');
+    }
+  });
 
   const btnCamera = document.getElementById('btnCamera');
   const btnDoc = document.getElementById('btnDoc');
