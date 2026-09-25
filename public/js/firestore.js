@@ -1,5 +1,5 @@
 import { db } from "./firebase-config.js";
-import { collection, addDoc, serverTimestamp, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { collection, addDoc, deleteDoc, doc, serverTimestamp, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const EQUALS = "==";
 const DESC = "desc";
@@ -41,5 +41,15 @@ export async function cargarFragmentos(tipo) {
   } catch (e) {
     console.error("Error:", e);
     return [];
+  }
+}
+
+export async function eliminarFragmento(id) {
+  try {
+    await deleteDoc(doc(db, "fragmentos", id));
+    return true;
+  } catch (e) {
+    console.error("Error eliminando fragmento:", e);
+    return false;
   }
 }

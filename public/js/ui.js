@@ -1,7 +1,7 @@
 import { auth } from "./firebase-config.js";
 import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { guardarFragmento, cargarFragmentos } from "./firestore.js";
-import { subirArchivo } from "./storage.js";
+import { guardarFragmento, cargarFragmentos, eliminarFragmento } from "./firestore.js";
+import { subirArchivo, eliminarArchivo } from "./storage.js";
 import { openLightbox } from "./lightbox.js";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -104,10 +104,21 @@ document.addEventListener("DOMContentLoaded", () => {
   if (cancelBtn) cancelBtn.addEventListener('click', () => toggleModal(false));
   if (writeModal) writeModal.addEventListener('click', (e) => { if (e.target === writeModal) toggleModal(false); });
 
-  // Abrir en pantalla completa cualquier imagen de un fragmento (delegado: cubre tarjetas futuras también)
-  if (fragmentsContainer) fragmentsContainer.addEventListener('click', (e) => {
+  // Abrir en pantalla completa una imagen, o eliminar un fragmento (delegado: cubre tarjetas futuras también)
+  if (fragmentsContainer) fragmentsContainer.addEventListener('click', async (e) => {
     if (e.target.classList.contains('card-image')) {
       openLightbox(e.target.src, 'fragmento.jpg');
+      return;
+    }
+    const deleteBtn = e.target.closest('.card-delete');
+    if (deleteBtn) {
+      if (!confirm('¿Eliminar este fragmento? Esta acción no se puede deshacer.')) return;
+      const id = deleteBtn.getAttribute('data-id');
+      const fileUrl = deleteBtn.getAttribute('data-file');
+      await eliminarFragmento(id);
+      if (fileUrl) await eliminarArchivo(fileUrl);
+      const navActivo = document.querySelector('.nav-item.active');
+      renderFragmentos(navActivo ? navActivo.getAttribute('data-category') : 'poesia');
     }
   });
 
@@ -189,7 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const card = document.createElement('div');
         card.className = 'fragment-card';
-        card.innerHTML = '<div class="card-meta">' + fechaStr + '</div><h3 class="card-title">' + (frag.titulo || 'Sin título') + '</h3>' + archivoHTML + '<p class="card-text">' + (frag.contenido ? frag.contenido.replace(/\n/g, '<br>') : '') + '</p>';
+        card.innerHTML = '<button class="card-delete" data-id="' + frag.id + '" data-file="' + (frag.url_archivo || '') + '" title="Eliminar">🗑️</button><div class="card-meta">' + fechaStr + '</div><h3 class="card-title">' + (frag.titulo || 'Sin título') + '</h3>' + archivoHTML + '<p class="card-text">' + (frag.contenido ? frag.contenido.replace(/\n/g, '<br>') : '') + '</p>';
         fragmentsContainer.appendChild(card);
       });
     } catch (e) {

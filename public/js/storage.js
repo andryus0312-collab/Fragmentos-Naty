@@ -24,3 +24,18 @@ export async function subirArchivo(file, folder) {
     return null;
   }
 }
+
+export async function eliminarArchivo(url) {
+  try {
+    const marker = `/${BUCKET_NAME}/`;
+    const idx = url.indexOf(marker);
+    if (idx === -1) return false;
+    const filePath = decodeURIComponent(url.slice(idx + marker.length));
+    const { error } = await supabase.storage.from(BUCKET_NAME).remove([filePath]);
+    if (error) { console.error("Error eliminando archivo:", error); return false; }
+    return true;
+  } catch (error) {
+    console.error("Error eliminando archivo:", error);
+    return false;
+  }
+}

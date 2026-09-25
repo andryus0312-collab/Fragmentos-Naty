@@ -2,7 +2,7 @@
 import { auth, db } from "./firebase-config.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { collection, addDoc, deleteDoc, doc, getDocs, orderBy, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { subirArchivo } from "./storage.js";
+import { subirArchivo, eliminarArchivo } from "./storage.js";
 import { initReproductor } from "./reproductor.js";
 import { openLightbox } from "./lightbox.js";
 
@@ -107,6 +107,7 @@ function iniciarAlbum() {
           e.stopPropagation();
           if (!confirm("¿Eliminar esta foto del álbum?")) return;
           await deleteDoc(doc(db, "album_especial", docSnap.id));
+          if (data.url_imagen) await eliminarArchivo(data.url_imagen);
           cargarAlbum();
         });
         card.querySelector(".polaroid-img").addEventListener("click", () => {
