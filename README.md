@@ -191,11 +191,13 @@ El cierre del proyecto dejó un protocolo de diagnóstico formal que hoy es part
 
 ---
 
+---
+
 ## 🤝 Créditos
 
 - **Desarrollo y dirección:** [@andryus0312-collab](https://github.com/andryus0312-collab)
 - **Asistencia técnica:** IA conversacional (iteración asistida)
-- **Destinataria:** Naty 🌴
+- **Destinataria:** Naty 🌴 (en Cuba 🇨🇺)
 - **Cierre del proyecto:** Septiembre 2026
 
 ---
@@ -203,12 +205,12 @@ El cierre del proyecto dejó un protocolo de diagnóstico formal que hoy es part
 <p align="center">
   <br>
   <img src="https://img.shields.io/badge/Hecho%20con%20❤️%20-Amor%20para%20Naty-FF6B9D?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Desde-Cuba%20🇨🇺-154B75?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Para%20Cuba%20🇨🇺-154B75?style=for-the-badge" />
 </p>
 
 <p align="center">
   <br>
-  <sub>✨ <b>Un camión de cariño, construido palabra por palabra desde Cuba, para que Naty tenga su propio rincón en internet.</b> ✨</sub>
+  <sub>✨ <b>Un camión de cariño, construido palabra por palabra, para que Naty tenga su propio rincón en internet allá en Cuba.</b> ✨</sub>
 </p>
 
 <p align="center">
