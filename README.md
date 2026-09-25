@@ -69,6 +69,18 @@
 
 ## 🛠️ Stack tecnológico
 
+
+| Capa | Tecnología | Rol |
+|---|---|---|
+| 🖥️ Frontend | HTML5 + CSS3 + JavaScript (ES Modules) | Interfaz y lógica de cliente |
+| 🌐 Hosting | GitHub Pages | Servir el sitio estático |
+| 🔐 Autenticación | Firebase Authentication | Login correo/contraseña |
+| 🗄️ Base de datos | Cloud Firestore | Textos, categorías y fechas |
+| 📦 Almacenamiento | Supabase Storage | Fotos y documentos (bucket `fragmentos`) |
+| 📥 PDF | html2pdf.js (CDN) | Exportación A4 con imágenes |
+| 🐞 Depuración | Eruda (CDN) | Consola de desarrollador móvil |
+| ✒️ Tipografías | Playfair Display + Inter | Identidad visual |
+
 ---
 
 ## 📂 Estructura del repositorio
