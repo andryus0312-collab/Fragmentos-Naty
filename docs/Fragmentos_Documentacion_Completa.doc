@@ -1,0 +1,353 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
+<head><meta charset='utf-8'><title>Fragmentos — Documentación Completa</title>
+<style>
+body{font-family:'Calibri',sans-serif;font-size:11pt;color:#1a1a1a;line-height:1.45;margin:2cm;}
+h1{font-family:'Cambria',serif;color:#154B75;font-size:24pt;margin:0 0 4pt;}
+h2{font-family:'Cambria',serif;color:#154B75;font-size:15pt;border-bottom:2pt solid #1F7A4C;padding-bottom:3pt;margin:16pt 0 8pt;}
+h3{color:#1F7A4C;font-size:12pt;margin:10pt 0 3pt;}
+p{margin:0 0 7pt;} ul,ol{margin:0 0 8pt;}
+table{border-collapse:collapse;width:100%;margin:6pt 0 10pt;}
+td,th{border:1pt solid #9db6c8;padding:5pt 7pt;font-size:9.5pt;vertical-align:top;}
+th{background:#154B75;color:#ffffff;}
+tr.alt td{background:#eaf2f8;}
+.fig{font-size:8.5pt;color:#555555;font-style:italic;margin:2pt 0 12pt;}
+img{width:100%;max-width:540pt;border:1pt solid #bbbbbb;}
+pre{background:#f2f6f9;border:1pt solid #ccdde8;border-left:4pt solid #1F7A4C;padding:7pt;font-family:'Consolas',monospace;font-size:8.5pt;white-space:pre-wrap;}
+.pb{page-break-before:always;}
+.cent{text-align:center;}
+.band{background:#154B75;color:#ffffff;padding:10pt;text-align:center;font-family:'Cambria',serif;font-size:14pt;}
+.sub{color:#1F7A4C;font-size:12pt;font-style:italic;}
+</style></head>
+<body>
+
+<!-- ============ PORTADA ============ -->
+<div class='cent'>
+<p style='font-size:10pt;color:#1F7A4C;letter-spacing:2pt;'>DOCUMENTACIÓN OFICIAL DEL PROYECTO</p>
+<h1 style='font-size:34pt;'>FRAGMENTOS</h1>
+<p class='sub'>Espacio privado de creación · Escritura, memoria y arte</p>
+<p style='font-size:10pt;'>Parte I — Documentación Técnica y de Proceso<br>Parte II — Bitácora de Errores y Soluciones</p>
+<table>
+<tr><th style='width:35%;'>Dato</th><th>Valor</th></tr>
+<tr><td><b>Versión</b></td><td>1.0 (estable, en producción)</td></tr>
+<tr class='alt'><td><b>Fecha de cierre</b></td><td>Septiembre 2026</td></tr>
+<tr><td><b>Usuario final</b></td><td>Naty (cuenta única y privada)</td></tr>
+<tr class='alt'><td><b>Hosting</b></td><td>GitHub Pages — <i>andryus0312-collab.github.io/Fragmentos-Naty/public/</i></td></tr>
+<tr><td><b>Stack</b></td><td>HTML5 · CSS3 · JavaScript ES Modules · Firebase (Auth + Firestore) · Supabase Storage · html2pdf.js</td></tr>
+<tr class='alt'><td><b>Metodología</b></td><td>Construcción iterativa en 8 fases, asistida por IA, gestionada 100 % desde móvil</td></tr>
+</table>
+</div>
+
+<h2>Índice general</h2>
+<p><b>PARTE I — DOCUMENTACIÓN TÉCNICA:</b> 1. Resumen ejecutivo · 2. Contexto y objetivos · 3. Stack tecnológico · 4. Arquitectura · 5. Diseño visual · 6. Proceso de construcción · 7. Funcionalidades · 8. Seguridad · 9. Despliegue y caché · 10. Resultado final · 11. Lecciones · 12. Anexos<br>
+<b>PARTE II — BITÁCORA DE ERRORES:</b> 1. Metodología · 2. Vistazo general · 3. Fichas E-01 a E-10 · 4. Protocolo de diagnóstico · 5. Conclusiones</p>
+
+<!-- ============ PARTE I ============ -->
+<div class='pb'></div>
+<div class='band'>PARTE I — DOCUMENTACIÓN TÉCNICA Y DE PROCESO</div>
+
+<h2>1. Resumen ejecutivo</h2>
+<p><b>Fragmentos</b> es una aplicación web privada de escritura creativa para una única usuaria final. Permite redactar y clasificar textos en cuatro categorías (Poesía, Prosa, Ideas, Imágenes), adjuntar fotografías y documentos, buscar entre los escritos y exportarlos a PDF, bajo autenticación por correo y contraseña. El frontend es estático (sin servidor propio); el backend se resuelve con servicios gratuitos en la nube: Firebase para identidad y datos, Supabase para archivos.</p>
+
+<h2>2. Contexto y objetivos</h2>
+<h3>2.1 Contexto</h3>
+<p>Naty necesitaba un diario creativo en internet que no apareciera en buscadores, que nadie más pudiera leer y que funcionara de forma óptima desde el celular.</p>
+<h3>2.2 Requisitos funcionales</h3>
+<table>
+<tr><th style='width:8%;'>#</th><th>Requisito</th><th style='width:15%;'>Prioridad</th></tr>
+<tr><td>R1</td><td>Acceso privado con login (correo + contraseña)</td><td>Alta</td></tr>
+<tr class='alt'><td>R2</td><td>URL discreta, sin indexación en buscadores</td><td>Alta</td></tr>
+<tr><td>R3</td><td>Cuatro categorías con navegación propia</td><td>Alta</td></tr>
+<tr class='alt'><td>R4</td><td>Subida de fotos y documentos adjuntos</td><td>Alta</td></tr>
+<tr><td>R5</td><td>Buscador por palabra clave</td><td>Media</td></tr>
+<tr class='alt'><td>R6</td><td>Exportación a PDF</td><td>Media</td></tr>
+<tr><td>R7</td><td>Control de luz ambiental y tamaño de texto</td><td>Media</td></tr>
+<tr class='alt'><td>R8</td><td>Modo oscuro</td><td>Media</td></tr>
+</table>
+<h3>2.3 Restricciones técnicas</h3>
+<ul>
+<li><b>Sin PC:</b> todo el ciclo (código, commits, consolas de servicios, despliegue) se operó desde un teléfono.</li>
+<li><b>Coste cero:</b> únicamente capas gratuitas de GitHub, Firebase y Supabase.</li>
+<li><b>Sin build:</b> JavaScript vanilla con módulos ES, editable desde la interfaz web de GitHub.</li>
+</ul>
+
+<h2>3. Stack tecnológico</h2>
+<table>
+<tr><th>Capa</th><th>Tecnología</th><th>Rol</th><th>Justificación</th></tr>
+<tr><td>Frontend</td><td>HTML5 + CSS3 + JS vanilla (módulos ES)</td><td>Interfaz y lógica de cliente</td><td>Sin compilación: editable desde móvil</td></tr>
+<tr class='alt'><td>Hosting</td><td>GitHub Pages</td><td>Servir sitio estático</td><td>Integrado al repositorio, gratuito</td></tr>
+<tr><td>Autenticación</td><td>Firebase Authentication</td><td>Login correo/contraseña</td><td>Un solo usuario, reglas simples</td></tr>
+<tr class='alt'><td>Base de datos</td><td>Cloud Firestore</td><td>Textos, categorías, fechas</td><td>NoSQL documental con timestamps de servidor</td></tr>
+<tr><td>Almacenamiento</td><td>Supabase Storage</td><td>Fotos y documentos (bucket <i>fragmentos</i>)</td><td>URLs públicas con política de escritura</td></tr>
+<tr class='alt'><td>PDF</td><td>html2pdf.js (CDN)</td><td>Exportar vistas a A4</td><td>Client-side, con useCORS para imágenes</td></tr>
+<tr><td>Depuración</td><td>Eruda (CDN)</td><td>Consola de desarrollador móvil</td><td>Esencial al no disponer de PC</td></tr>
+<tr class='alt'><td>Tipografías</td><td>Playfair Display + Inter</td><td>Identidad visual</td><td>Serif literaria + sans legible</td></tr>
+</table>
+
+<h2>4. Arquitectura del sistema</h2>
+<img src='https://andryus0312-collab.github.io/Fragmentos-Naty/docs/img/01-arquitectura.png' alt='Arquitectura'/>
+<p class='fig'>Fig. 1 — Arquitectura de tres bloques: frontend estático (GitHub Pages), Firebase (Authentication + Firestore) y Supabase Storage (fotos/ y documentos/).</p>
+<h3>4.1 Flujos principales</h3>
+<ol>
+<li><b>Login:</b> el frontend valida credenciales contra Firebase Authentication y redirige a <i>dashboard.html</i>.</li>
+<li><b>Lectura/escritura:</b> <i>firestore.js</i> consulta y escribe la colección <i>fragmentos</i> (where tipo == categoría + orderBy fecha desc).</li>
+<li><b>Archivos:</b> <i>storage.js</i> sube a Supabase con nombre único (Date.now() + extensión) y devuelve la URL pública, que se guarda como campo del documento.</li>
+<li><b>Exportación:</b> html2pdf.js captura el contenedor de tarjetas visibles y genera el PDF en el dispositivo.</li>
+</ol>
+<h3>4.2 Estructura del repositorio</h3>
+<pre>Fragmentos-Naty/
+├── index.html              ← Puente meta-refresh a /public (GitHub Pages)
+└── public/
+    ├── index.html          ← Pantalla de login
+    ├── dashboard.html      ← Aplicación principal
+    ├── css/  auth.css · dashboard.css
+    └── js/   firebase-config.js · supabase-config.js · auth.js
+              firestore.js · storage.js · ui.js</pre>
+
+<h2>5. Diseño visual e interfaz</h2>
+<h3>5.1 Paleta de color</h3>
+<table>
+<tr><th>Token</th><th>Hex</th><th>Uso</th></tr>
+<tr><td>Fondo principal</td><td>#A8CBE0</td><td>Azul sereno del escritorio</td></tr>
+<tr class='alt'><td>Barra de navegación</td><td>#154B75</td><td>Azul profundo</td></tr>
+<tr><td>Acento primario</td><td>#1F7A4C</td><td>Verde de acción</td></tr>
+<tr class='alt'><td>Texto principal</td><td>#0A1628</td><td>Contraste en modo claro</td></tr>
+<tr><td>Tarjeta de login</td><td>#1E1E1E</td><td>Modo oscuro por defecto</td></tr>
+</table>
+<h3>5.2 Componentes signature</h3>
+<ul>
+<li><b>Lámpara interactiva (SVG):</b> brillo, cono de luz y overlay ambiental reaccionan al slider mediante la variable CSS <i>--light-intensity</i> y atributos SVG dinámicos.</li>
+<li><b>Sliders verticales gemelos:</b> tamaño de texto (<i>--base-font-size</i>, 12–24 px) e intensidad de luz (0–100).</li>
+<li><b>Clusters FAB:</b> izquierda (buscar, exportar, modo oscuro) y derecha (emojis, cámara, documento), más botón de corazón y widget musical del cierre.</li>
+<li><b>Modal de escritura:</b> título opcional, selector de categoría, área de texto, vista previa de adjunto y pie Cancelar/Guardar.</li>
+</ul>
+<img src='https://andryus0312-collab.github.io/Fragmentos-Naty/docs/img/02-login.png' alt='Login'/>
+<p class='fig'>Fig. 2 — Pantalla de acceso: tarjeta oscura centrada sobre fondo #A8CBE0.</p>
+<img src='https://andryus0312-collab.github.io/Fragmentos-Naty/docs/img/03-dashboard.png' alt='Dashboard'/>
+<p class='fig'>Fig. 3 — Dashboard: lámpara, sliders, barra de categorías y clusters de acción flotantes.</p>
+
+<h2>6. Proceso de construcción (8 fases)</h2>
+<img src='https://andryus0312-collab.github.io/Fragmentos-Naty/docs/img/04-timeline.png' alt='Timeline'/>
+<p class='fig'>Fig. 4 — Línea de tiempo: de la planificación al despliegue seguro.</p>
+<h3>Fase 1 — Planificación y servicios</h3>
+<p>Alta de Firebase (Authentication email/password, Firestore, reglas) y Supabase (bucket <i>fragmentos</i> con carpetas fotos/ y documentos/, política de subida, bucket público para lectura). Se define el modelo de datos: tipo, titulo, contenido, url_archivo, tipo_archivo, fecha.</p>
+<h3>Fase 2 — Repositorio y estructura</h3>
+<p>Creación del repo y del árbol public/ (css, js, html). Se establece el flujo de trabajo 100 % móvil: Add file / Commit changes desde la interfaz web de GitHub.</p>
+<h3>Fase 3 — Login y diseño visual</h3>
+<p>index.html + auth.css (tarjeta centrada, Playfair Display, meta noindex,nofollow). auth.js con signInWithEmailAndPassword y redirección al dashboard.</p>
+<h3>Fase 4 — Dashboard interactivo</h3>
+<p>dashboard.html + dashboard.css: lámpara SVG, sliders, modo oscuro, barra de categorías, clusters FAB. ui.js (bloque visual): variables --light-intensity y --base-font-size, toggle de tema y cierre de sesión.</p>
+<h3>Fase 5 — Modal de escritura y Firestore</h3>
+<p>Modal con formulario, selector de categoría y vista previa. firestore.js: guardarFragmento() con serverTimestamp() y cargarFragmentos() con consulta compuesta. Render dinámico de tarjetas con fecha formateada es-ES.</p>
+<h3>Fase 6 — Archivos con Supabase</h3>
+<p>storage.js: subirArchivo() con nombre único y getPublicUrl(). Botones cámara/documento con patrón openModalAndTrigger() (abre modal y dispara el selector tras 300 ms). Vista previa con FileReader y botón "Quitar archivo".</p>
+<h3>Fase 7 — Búsqueda y exportación PDF</h3>
+<p>Modal de búsqueda con filtrado en memoria sobre título y contenido. Integración de html2pdf.js con useCORS: true, imprescindible para imprimir imágenes servidas por Supabase.</p>
+<h3>Fase 8 — Seguridad y despliegue</h3>
+<p>Reglas de Firestore con request.auth != null; usuario creado manualmente en Authentication; GitHub Pages con index.html puente (meta refresh a public/index.html); URL discreta y sin indexar.</p>
+<h3>Cierre — Estabilización y añadidos</h3>
+<p>Ajustes de contraste en modo claro, selector de categoría dentro del modal, widget musical "Sin canción", botón de corazón y adopción del protocolo de diagnóstico (incógnito → validación → configuración).</p>
+
+<h2>7. Catálogo de funcionalidades</h2>
+<table>
+<tr><th>Funcionalidad</th><th>Descripción</th><th style='width:12%;'>Estado</th></tr>
+<tr><td>Login privado</td><td>Correo + contraseña, sin registro público</td><td>✅</td></tr>
+<tr class='alt'><td>Categorías</td><td>Poesía, Prosa, Ideas, Imágenes con título dinámico</td><td>✅</td></tr>
+<tr><td>Escritura</td><td>Modal con título opcional, texto y categoría</td><td>✅</td></tr>
+<tr class='alt'><td>Adjuntos</td><td>Fotos con vista previa y documentos PDF/DOC</td><td>✅</td></tr>
+<tr><td>Búsqueda</td><td>Filtrado en tiempo real por título y contenido</td><td>✅</td></tr>
+<tr class='alt'><td>Exportar PDF</td><td>A4 vertical con imágenes embebidas</td><td>✅</td></tr>
+<tr><td>Luz ambiental</td><td>Slider 0–100 con lámpara y overlay reactivos</td><td>✅</td></tr>
+<tr class='alt'><td>Tamaño de texto</td><td>Slider 12–24 px vía variable CSS</td><td>✅</td></tr>
+<tr><td>Modo oscuro</td><td>Toggle global de tema</td><td>✅</td></tr>
+<tr class='alt'><td>Música y afecto</td><td>Widget musical y botón de corazón (cierre)</td><td>✅</td></tr>
+</table>
+
+<h2>8. Seguridad y privacidad</h2>
+<ol>
+<li><b>Autenticación obligatoria:</b> las reglas de Firestore exigen request.auth != null para leer y escribir.</li>
+<li><b>Sin indexación:</b> meta robots noindex, nofollow en ambas páginas.</li>
+<li><b>URL discreta:</b> ruta larga de GitHub Pages, no difundida ni enlazada.</li>
+<li><b>Usuario único:</b> cuenta creada manualmente en consola; no existe flujo de registro.</li>
+<li><b>Storage con política:</b> escrituras autenticadas; lecturas públicas controladas (necesario para useCORS del PDF).</li>
+</ol>
+<pre>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</pre>
+
+<h2>9. Despliegue y gestión de caché</h2>
+<ul>
+<li><b>Hosting:</b> GitHub Pages, rama main, con puente en raíz: <i>&lt;meta http-equiv="refresh" content="0; url=public/index.html"&gt;</i>.</li>
+<li><b>Cache-busting:</b> los scripts se versionan con parámetro (?v=2, ?v=3…) en cada cambio de lógica.</li>
+<li><b>Regla de prueba:</b> toda verificación se realiza en modo incógnito antes de modificar código (ver Parte II).</li>
+</ul>
+
+<h2>10. Resultado final</h2>
+<img src='https://andryus0312-collab.github.io/Fragmentos-Naty/docs/img/08-final-movil.png' alt='Final móvil'/>
+<p class='fig'>Fig. 5 — Captura oficial de cierre: vista móvil.</p>
+<img src='https://andryus0312-collab.github.io/Fragmentos-Naty/docs/img/09-final-escritorio.png' alt='Final escritorio'/>
+<p class='fig'>Fig. 6 — Captura oficial de cierre: vista escritorio.</p>
+<p>El sitio quedó en producción con el catálogo completo de funcionalidades operativas y consola limpia.</p>
+
+<h2>11. Lecciones aprendidas</h2>
+<ol>
+<li>La caché del navegador simula bugs de sintaxis inexistentes.</li>
+<li>Leer el code exacto del error: failed-precondition no es código, es un índice compuesto.</li>
+<li>En Firestore las mayúsculas importan: Tipo ≠ tipo.</li>
+<li>Un módulo debe cargarse desde una única URL (con o sin ?v=), nunca ambas.</li>
+<li>Validar sintaxis (node --check) antes de reescribir código sano.</li>
+<li>Mobile-first real: todo el ciclo de vida del proyecto cupo en un teléfono.</li>
+</ol>
+
+<h2>12. Anexos</h2>
+<h3>12.1 Registro de capturas del proceso</h3>
+<table>
+<tr><th>Archivo</th><th>Contenido</th><th>Momento</th></tr>
+<tr><td>img/10-consola-syntaxerror.png</td><td>Consola Eruda con SyntaxError</td><td>Depuración Fase 8</td></tr>
+<tr class='alt'><td>img/11-consola-failed-precondition.png</td><td>FirebaseError: failed-precondition</td><td>Carga de categorías</td></tr>
+<tr><td>img/12-firebase-config-placeholders.png</td><td>Credenciales de ejemplo sin reemplazar</td><td>Diagnóstico de login</td></tr>
+<tr class='alt'><td>img/13-indice-creandose.png</td><td>Panel de índices de Firestore ("Creando…")</td><td>Solución E-06</td></tr>
+</table>
+<h3>12.2 Glosario</h3>
+<p><b>Bucket:</b> contenedor de archivos en Supabase Storage. <b>Índice compuesto:</b> estructura que Firestore exige para combinar where + orderBy. <b>Cache-busting:</b> versionado de URLs (?v=n) para invalidar caché. <b>FAB:</b> botón de acción flotante. <b>Modal:</b> ventana emergente superpuesta a la interfaz.</p>
+
+<!-- ============ PARTE II ============ -->
+<div class='pb'></div>
+<div class='band'>PARTE II — BITÁCORA DE ERRORES Y SOLUCIONES</div>
+<p class='cent sub'>Registro técnico de incidencias, diagnósticos y correcciones · 10 fichas · 3 fantasmas de caché · 3 de configuración · 2 de despliegue · 2 de código/UX</p>
+
+<h2>1. Objetivo y metodología</h2>
+<p>Cada incidencia se registra con el formato: <b>Síntoma → Diagnóstico inicial → Causa real → Solución → Lección</b>. El documento deja trazabilidad del cierre y fija un protocolo de depuración contra falsos positivos.</p>
+
+<h2>2. Vistazo general</h2>
+<table>
+<tr><th style='width:7%;'>ID</th><th>Síntoma</th><th>Causa real</th><th>Solución</th></tr>
+<tr><td>E-01</td><td>"Error al iniciar sesión"</td><td>Credenciales de ejemplo + usuario inexistente</td><td>Credenciales reales + Add user</td></tr>
+<tr class='alt'><td>E-02</td><td>Interfaz inerte al cargar</td><td>ui.js con error de sintaxis; listeners no registrados</td><td>Reescritura limpia del módulo</td></tr>
+<tr><td>E-03</td><td>SyntaxError: Unexpected token '}'</td><td>Fragmentos huérfanos tras el cierre del listener</td><td>Reconstrucción verificada del archivo</td></tr>
+<tr class='alt'><td>E-04</td><td>SyntaxError: Unexpected token '=='</td><td>Versiones mezcladas + copia móvil corrupta (() = >, & &)</td><td>Archivo nuevo e integridad verificada</td></tr>
+<tr><td>E-05</td><td>SyntaxError: Illegal return statement</td><td><b>Fantasma:</b> caché del navegador</td><td>Incógnito + versionado ?v=n</td></tr>
+<tr class='alt'><td>E-06</td><td>FirebaseError: failed-precondition</td><td>Índice compuesto faltante; 1.º intento con "Tipo" ≠ "tipo"</td><td>Índice tipo asc + fecha desc</td></tr>
+<tr><td>E-07</td><td>Warning Multiple GoTrueClient instances</td><td>supabase-config.js cargado por script y por import</td><td>Eliminar el script duplicado</td></tr>
+<tr class='alt'><td>E-08</td><td>Subidas a Supabase fallan</td><td>URL y anon key de ejemplo</td><td>Credenciales reales de Supabase</td></tr>
+<tr><td>E-09</td><td>Cámara/documento/emojis sin efecto</td><td>Inputs de archivo dentro de modal cerrado</td><td>Patrón openModalAndTrigger()</td></tr>
+<tr class='alt'><td>E-10</td><td>404 al publicar en GitHub Pages</td><td>Sitio servido desde raíz; app en /public</td><td>index.html puente con meta refresh</td></tr>
+</table>
+
+<h2>3. Fichas detalladas</h2>
+<h3>E-01 · Login rechazado</h3>
+<p><b>Síntoma:</b> mensaje genérico "Error al iniciar sesión." bajo el botón Entrar.<br>
+<b>Diagnóstico inicial:</b> sospecha de reglas de Firestore.<br>
+<b>Causa real:</b> firebase-config.js conservaba placeholders (TU_API_KEY_AQUI) y la cuenta no existía en Authentication.<br>
+<b>Solución:</b> pegar credenciales reales desde la consola Firebase y crear el usuario con Add user.<br>
+<b>Lección:</b> auditar placeholders antes de depurar lógica.</p>
+<h3>E-02 · Interfaz inerte</h3>
+<p><b>Síntoma:</b> la página pinta completa pero ningún control responde.<br>
+<b>Causa real:</b> un error de sintaxis detenía ui.js por completo; los addEventListener nunca se ejecutaban.<br>
+<b>Solución:</b> reescritura ordenada del módulo completo.<br>
+<b>Lección:</b> si el HTML vive y el JS no, el módulo entero está cayendo.</p>
+<h3>E-03 · Unexpected token '}'</h3>
+<p><b>Síntoma:</b> consola Eruda roja al cargar el dashboard.<br>
+<b>Causa real:</b> código huérfano pegado después del }); de cierre del DOMContentLoaded.<br>
+<b>Solución:</b> reconstruir el archivo verificando que la última línea sea }); y nada más.<br>
+<b>Lección:</b> reemplazar no es appending: los pegados sucesivos acumulan basura.</p>
+<h3>E-04 · Unexpected token '=='</h3>
+<p><b>Síntoma:</b> error persistente tras "corregir" firestore.js.<br>
+<b>Diagnóstico inicial (erróneo):</b> se sospechó del operador "==" dentro de where().<br>
+<b>Causa real:</b> coexistencia de varias versiones del archivo y copia corrupta desde el móvil (addEventListe ner, () = >, & &).<br>
+<b>Solución:</b> archivo nuevo, sin flechas ni && en la primera pasada, con verificación visual de integridad.<br>
+<h3>12.1 Registro de capturas del proceso</h3>
+<tr><td>img/12-firebase-config-placeholders.png</td><td>Credenciales de ejemplo sin reemplazar</td><td>Diagnóstico de login</td></tr>
+<h3>E-04 · Unexpected token '=='</h3>
+
+
+<p>index.html + auth.css (tarjeta centrada, Playfair Display, meta noindex,nofollow). auth.js con signInWithEmailAndPassword y redirección al dashboard.</p>
+<li><b>Sin indexación:</b> meta robots noindex, nofollow en ambas páginas.</li>
+<b>Verificación clave:</b> node --check sobre todos los .js → limpios; en modo incógnito el error no existía.<br>
+</table>
+<li><b>Sliders verticales gemelos:</b> tamaño de texto (<i>--base-font-size</i>, 12–24 px) e intensidad de luz (0–100).</li>
+</ol>
+<h3>Fase 1 — Planificación y servicios</h3>
+<h3>5.2 Componentes signature</h3>
+<ol>
+<h3>Cierre — Estabilización y añadidos</h3>
+<li>La caché del navegador simula bugs de sintaxis inexistentes.</li>
+
+</table>
+    match /{document=**} {
+<pre>rules_version = '2';
+<h3>Fase 8 — Seguridad y despliegue</h3>
+<h2>1. Objetivo y metodología</h2>
+<img src='https://andryus0312-collab.github.io/Fragmentos-Naty/docs/img/05-cache-vs-incognito.png' alt='Caché vs incógnito'/>
+<h3>Fase 2 — Repositorio y estructura</h3>
+<li>Un módulo debe cargarse desde una única URL (con o sin ?v=), nunca ambas.</li>
+<!-- ============ PARTE II ============ -->
+<table>
+
+</ul>
+<h3>Fase 7 — Búsqueda y exportación PDF</h3>
+<h2>6. Proceso de construcción (8 fases)</h2>
+<img src='https://andryus0312-collab.github.io/Fragmentos-Naty/docs/img/03-dashboard.png' alt='Dashboard'/>
+<h3>Fase 6 — Archivos con Supabase</h3>
+<tr class='alt'><td>Texto principal</td><td>#0A1628</td><td>Contraste en modo claro</td></tr>
+<ul>
+<h3>Fase 5 — Modal de escritura y Firestore</h3>
+<h2>7. Catálogo de funcionalidades</h2>
+<b>Lección:</b> el copiado móvil puede corromper tokens; verificar siempre el pegado.</p>
+<h3>Fase 4 — Dashboard interactivo</h3>
+<p class='fig'>Fig. 7 — El mismo sitio: error fantasma con caché, consola limpia en incógnito.</p>
+<h3>E-06 · failed-precondition en categorías</h3>
+<p><b>Síntoma:</b> ninguna categoría cargaba fragmentos; error rojo de Firestore.<br>
+<b>Causa real:</b> la consulta where("tipo","==",tipo) + orderBy("fecha","desc") exige índice compuesto. El primer índice se creó con el campo "Tipo" (mayúscula); Firestore distingue mayúsculas y el índice no aplicaba.<br>
+<b>Solución:</b> borrar el índice erróneo y crear tipo Ascendente + fecha Descendente; esperar estado Habilitado.<br>
+<b>Lección:</b> los nombres de campo son case-sensitive: copiarlos exactamente desde el código.</p>
+<img src='https://andryus0312-collab.github.io/Fragmentos-Naty/docs/img/06-indice-firestore.png' alt='Índice Firestore'/>
+<p class='fig'>Fig. 8 — Índice compuesto correcto y la trampa de mayúsculas/minúsculas.</p>
+<h3>E-07 · Dos clientes de Supabase</h3>
+<p><b>Síntoma:</b> warning "Multiple GoTrueClient instances detected".<br>
+<b>Causa real:</b> dashboard.html incluía el script supabase-config.js?v=2 mientras storage.js lo importaba sin sufijo: dos URLs = dos módulos = dos clientes.<br>
+<b>Solución:</b> eliminar el script; el módulo se carga solo vía import.<br>
+<b>Lección:</b> un módulo, una única URL de carga en todo el proyecto.</p>
+<h3>E-08 · Supabase no sube</h3>
+<p><b>Síntoma:</b> subirArchivo() devolvía null.<br>
+<b>Causa real:</b> SUPABASE_URL y SUPABASE_ANON_KEY seguían como texto de ejemplo.<br>
+<b>Solución:</b> credenciales reales desde Supabase → Settings → API.<br>
+<b>Lección:</b> checklist de credenciales al integrar cada servicio nuevo.</p>
+<h3>E-09 · Botones que "no hacían nada"</h3>
+<p><b>Síntoma:</b> cámara, documento y emojis abrían selectores sin contexto de escritura.<br>
+<b>Causa real:</b> los input type="file" vivían dentro del modal cerrado; la selección no tenía dónde mostrarse.<br>
+<b>Solución:</b> patrón openModalAndTrigger(fn): abrir el modal y disparar el selector tras 300 ms.<br>
+<b>Lección:</b> el flujo UX debe preceder al evento técnico.</p>
+<h3>E-10 · 404 en GitHub Pages</h3>
+<p><b>Síntoma:</b> la URL pública no encontraba la aplicación.<br>
+<b>Causa real:</b> Pages sirve desde la raíz del repositorio; la app vive en /public.<br>
+<b>Solución:</b> index.html puente en raíz con meta refresh a public/index.html.<br>
+<b>Lección:</b> conocer la carpeta de publicación del host estático antes de desplegar.</p>
+
+<h2>4. Protocolo de diagnóstico</h2>
+<img src='https://andryus0312-collab.github.io/Fragmentos-Naty/docs/img/07-protocolo.png' alt='Protocolo'/>
+<p class='fig'>Fig. 9 — Flujograma oficial de diagnóstico adoptado tras el cierre.</p>
+<ol>
+<li>Error en consola → reproducir en <b>modo incógnito</b>.</li>
+<li>¿Desaparece? → <b>Caché:</b> recarga forzada o bump ?v=n. Fin.</li>
+<li>¿Persiste? → <b>Validar sintaxis</b> (node --check).</li>
+<li>¿Pasa limpio? → <b>Revisar configuración:</b> credenciales, reglas, índices, code exacto del error.</li>
+<li>¿No pasa? → <b>Corregir el código puntual</b>; nunca reescribir todo por reflejo.</li>
+<li>Registrar la incidencia en esta bitácora.</li>
+</ol>
+
+<h2>5. Análisis y conclusiones</h2>
+<ul>
+<li><b>30 % errores fantasma</b> (caché): alto coste de diagnóstico, coste de solución nulo.</li>
+<li><b>30 % configuración</b> (credenciales, índices, duplicados): prevenibles con checklist.</li>
+<li><b>20 % código real</b>, todos con el mismo vector: pegados acumulativos desde móvil.</li>
+<li><b>20 % despliegue/UX</b>: resolubles con conocimiento del host y del flujo de interfaz.</li>
+<li><b>Regla de oro:</b> incógnito primero, validación después, reescritura nunca como reflejo.</li>
+</ul>
+<p class='cent' style='margin-top:14pt;color:#154B75;'><b>— Fin del documento · Fragmentos v1.0 · Septiembre 2026 —</b></p>
+
+</body></html>
